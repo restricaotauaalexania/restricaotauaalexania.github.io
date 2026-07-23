@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restrições Alimentares — Tauá Alexânia</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --verde:#1f7a5c; --verde-escuro:#155940; --verde-claro:#e6f4ee;
+    --laranja:#d97b29; --vermelho:#c0392b; --azul:#2c5f8a;
+    --bg:#f4f6f5; --card:#ffffff; --texto:#22302b; --texto-suave:#5c6b65;
+    --borda:#dde3e0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--texto);}
+  header{background:var(--verde-escuro);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  header h1{font-size:18px;margin:0;font-weight:600;}
+  header .sub{font-size:12px;opacity:.85;font-weight:400;}
+  nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:1px solid var(--borda);}
+  nav button{background:none;border:1px solid var(--borda);color:var(--texto);padding:8px 14px;border-radius:20px;cursor:pointer;font-size:13px;}
+  nav button.active{background:var(--verde);color:#fff;border-color:var(--verde);}
+  nav button:hover{border-color:var(--verde);}
+  main{padding:20px;max-width:1200px;margin:0 auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .topbar h2{margin:0;font-size:20px;}
+  .muted{color:var(--texto-suave);font-size:13px;}
+  button.primary{background:var(--verde);color:#fff;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-size:14px;}
+  button.primary:hover{background:var(--verde-escuro);}
+  button.secondary{background:#fff;border:1px solid var(--borda);color:var(--texto);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;}
+  button.small{padding:5px 10px;font-size:12px;border-radius:5px;}
+  button.danger{background:var(--vermelho);color:#fff;border:none;}
+  .refeicoes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
+  .coluna-refeicao h3{margin:0 0 10px;padding:8px 12px;border-radius:6px;color:#fff;font-size:15px;}
+  .coluna-refeicao.cafe h3{background:var(--laranja);}
+  .coluna-refeicao.almoco h3{background:var(--azul);}
+  .coluna-refeicao.jantar h3{background:var(--verde-escuro);}
+  .pedido-card{background:var(--card);border:1px solid var(--borda);border-radius:8px;padding:12px;margin-bottom:10px;}
+  .pedido-card .linha1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .pedido-card .nome{font-weight:700;font-size:15px;}
+  .pedido-card .apto{background:var(--verde-claro);color:var(--verde-escuro);padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap;}
+  .pedido-card .tag{display:inline-block;background:#f0ede4;color:#6b5a2a;padding:2px 8px;border-radius:10px;font-size:11px;margin:6px 4px 0 0;}
+  .pedido-card .prato{margin-top:6px;font-size:13px;color:var(--texto-suave);}
+  .pedido-card .horario{font-size:12px;color:var(--texto-suave);margin-top:4px;}
+  .status-btn{margin-top:10px;width:100%;padding:8px;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
+  .status-btn.pendente{background:#fdecea;color:var(--vermelho);}
+  .status-btn.pronto{background:#e6f4ee;color:var(--verde-escuro);}
+  .empty{color:var(--texto-suave);font-size:13px;padding:16px;text-align:center;border:1px dashed var(--borda);border-radius:8px;}
+  form.card{background:var(--card);border:1px solid var(--borda);border-radius:10px;padding:20px;max-width:640px;}
+  .campo{margin-bottom:14px;}
+  .campo label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;}
+  .campo input[type=text], .campo input[type=date], .campo input[type=number], .campo select, .campo textarea{
+    width:100%;padding:9px 10px;border:1px solid var(--borda);border-radius:6px;font-size:14px;font-family:inherit;
+  }
+  .campo textarea{min-height:60px;resize:vertical;}
+  .refeicao-check{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--borda);border-radius:6px;margin-bottom:8px;}
+  .refeicao-check input[type=checkbox]{width:18px;height:18px;}
+  .refeicao-check .rc-nome{flex:1;font-size:14px;}
+  .refeicao-check input[type=time]{width:110px;padding:6px;border:1px solid var(--borda);border-radius:5px;}
+  .linha-dois{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--borda);border-radius:8px;overflow:hidden;}
+  table th, table td{padding:10px;border-bottom:1px solid var(--borda);font-size:13px;text-align:left;vertical-align:top;}
+  table th{background:#f0f3f1;font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+  .pill{padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600;}
+  .pill.sim{background:var(--verde-claro);color:var(--verde-escuro);}
+  .pill.nao{background:#fdecea;color:var(--vermelho);}
+  .filtros{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px;}
+  .filtros .campo{margin-bottom:0;}
+  .login-box{max-width:360px;margin:60px auto;background:#fff;border:1px solid var(--borda);border-radius:10px;padding:26px;}
+  .login-box h2{margin-top:0;}
+  .erro{color:var(--vermelho);font-size:13px;margin-top:8px;}
+  .aviso-login{background:#fff8e6;border:1px solid #f0d98c;color:#7a5c00;padding:14px;border-radius:8px;font-size:14px;}
+  .grafico-card{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:16px;margin-bottom:18px;}
+  .grafico-card h3{margin:0 0 12px;font-size:15px;}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;}
+  .kpi{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:14px;text-align:center;}
+  .kpi .num{font-size:26px;font-weight:700;color:var(--verde-escuro);}
+  .kpi .lbl{font-size:12px;color:var(--texto-suave);}
+  .userbox{font-size:12px;color:#fff;opacity:.9;text-align:right;}
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center;z-index:50;}
+  .modal-bg.active{display:flex;}
+  .modal{background:#fff;border-radius:10px;padding:20px;max-width:520px;width:92%;max-height:86vh;overflow:auto;}
+  .modal h3{margin-top:0;}
+  .acoes-linha{display:flex;gap:6px;flex-wrap:wrap;}
+
+  /* Modo TV (?tv=1) */
+  body.modo-tv header, body.modo-tv nav{display:none;}
+  body.modo-tv main{max-width:none;padding:24px 30px;}
+  body.modo-tv .pedido-card .nome{font-size:20px;}
+  body.modo-tv .pedido-card .prato{font-size:16px;}
+  body.modo-tv .pedido-card .apto{font-size:14px;}
+  body.modo-tv .status-btn{font-size:16px;padding:12px;}
+  body.modo-tv .coluna-refeicao h3{font-size:20px;padding:12px 16px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Controle de Restrições Alimentares</h1>
+    <div class="sub">Tauá Alexânia</div>
+  </div>
+  <div id="userArea" class="userbox"></div>
+</header>
+
+<nav id="navBar">
+  <button data-view="painel" class="active">Painel da Cozinha</button>
+  <button data-view="solicitar">Solicitar Prato</button>
+  <button data-view="entregas">Gerenciar Entregas</button>
+  <button data-view="dashboard">Dashboard</button>
+  <button id="btnLoginNav">Entrar</button>
+</nav>
+
+<main>
+
+  <!-- PAINEL DA COZINHA -->
+  <section id="view-painel" class="view active">
+    <div class="topbar">
+      <h2>Painel da Cozinha — Hoje (<span id="dataHojeLabel"></span>)</h2>
+      <div>
+        <span class="muted" id="ultimaAtualizacaoPainel">—</span>
+        <button class="secondary" onclick="carregarPainel()">Atualizar agora</button>
+      </div>
+    </div>
+    <div class="refeicoes-grid" id="painelGrid"></div>
+  </section>
+
+  <!-- SOLICITAR PRATO -->
+  <section id="view-solicitar" class="view">
+    <div class="topbar"><h2>Solicitar Prato / Restrição</h2></div>
+    <div id="solicitarBloqueado" class="aviso-login" style="display:none;">
+      Esta área é restrita à equipe de nutrição. Faça login para lançar um pedido.
+    </div>
+    <form class="card" id="formSolicitar" style="display:none;">
+      <div class="campo">
+        <label>Nutricionista responsável</label>
+        <input type="text" id="nutriResponsavel" disabled>
+      </div>
+      <div class="linha-dois">
+        <div class="campo">
+          <label>Nome do hóspede *</label>
+          <input type="text" id="fHospede" required>
+        </div>
+        <div class="campo">
+          <label>Apartamento *</label>
+          <input type="text" id="fApartamento" required>
+        </div>
+      </div>
+      <div class="linha-dois">
+        <div class="campo">
+          <label>Reserva (opcional)</label>
+          <input type="text" id="fReserva">
+        </div>
+        <div class="campo">
+          <label>Origem do hóspede *</label>
+          <select id="fOrigem" required></select>
+        </div>
+      </div>
+      <div class="campo" id="campoOutraOrigem" style="display:none;">
+        <label>Qual origem? *</label>
+        <input type="text" id="fOrigemOutro">
+      </div>
+      <div class="campo">
+        <label>Tipo de restrição *</label>
+        <select id="fTipoRestricao" required></select>
+      </div>
+      <div class="campo" id="campoOutraRestricao" style="display:none;">
+        <label>Qual restrição? *</label>
+        <input type="text" id="fTipoRestricaoOutro">
+      </div>
+      <div class="campo">
+        <label>Prato solicitado pela nutrição *</label>
+        <input type="text" id="fPrato" required>
+      </div>
+      <div class="linha-dois">
+        <div class="campo">
+          <label>Data de início *</label>
+          <input type="date" id="fDataInicio" required>
+        </div>
+        <div class="campo">
+          <label>Número de noites/dias *</label>
+          <input type="number" id="fNoites" min="1" value="1" required>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Refeições e horário de entrega</label>
+        <div class="refeicao-check">
+          <input type="checkbox" id="chkCafe" checked>
+          <div class="rc-nome">Café da Manhã</div>
+          <input type="time" id="hCafe" value="07:30">
+        </div>
+        <div class="refeicao-check">
+          <input type="checkbox" id="chkAlmoco">
+          <div class="rc-nome">Almoço</div>
+          <input type="time" id="hAlmoco" value="12:30">
+        </div>
+        <div class="refeicao-check">
+          <input type="checkbox" id="chkJantar">
+          <div class="rc-nome">Jantar</div>
+          <input type="time" id="hJantar" value="20:00">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Observações</label>
+        <textarea id="fObservacoes"></textarea>
+      </div>
+      <div id="msgSolicitar" class="erro"></div>
+      <button type="submit" class="primary">Lançar pedido</button>
+    </form>
+  </section>
+
+  <!-- GERENCIAR ENTREGAS -->
+  <section id="view-entregas" class="view">
+    <div class="topbar"><h2>Gerenciar Entregas e Correções</h2></div>
+    <div id="entregasBloqueado" class="aviso-login" style="display:none;">
+      Esta área é restrita à equipe de nutrição. Faça login para validar entregas ou corrigir pedidos.
+    </div>
+    <div id="entregasConteudo" style="display:none;">
+      <div class="filtros">
+        <div class="campo">
+          <label>Data</label>
+          <input type="date" id="filtroDataEntregas">
+        </div>
+        <button class="secondary" onclick="carregarEntregas()">Filtrar</button>
+      </div>
+      <div id="tabelaEntregasWrap"></div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="view">
+    <div class="topbar"><h2>Dashboard</h2></div>
+    <div id="dashboardBloqueado" class="aviso-login" style="display:none;">
+      Esta área é restrita à equipe de nutrição. Faça login para ver os gráficos.
+    </div>
+    <div id="dashboardConteudo" style="display:none;">
+      <div class="filtros">
+        <div class="campo"><label>De</label><input type="date" id="dashDataInicio"></div>
+        <div class="campo"><label>Até</label><input type="date" id="dashDataFim"></div>
+        <button class="secondary" onclick="carregarDashboard()">Atualizar</button>
+      </div>
+      <div class="kpis" id="dashKpis"></div>
+      <div class="grafico-card"><h3>Restrições por tipo</h3><canvas id="chartTipo" height="90"></canvas></div>
+      <div class="grafico-card"><h3>Pedidos por refeição (café / almoço / jantar)</h3><canvas id="chartRefeicao" height="90"></canvas></div>
+      <div class="grafico-card"><h3>Pedidos por origem do hóspede</h3><canvas id="chartOrigem" height="90"></canvas></div>
+      <div class="grafico-card"><h3>Lançamentos por nutricionista</h3><canvas id="chartNutri" height="90"></canvas></div>
+      <div class="grafico-card"><h3>Pratos mais solicitados</h3><canvas id="chartPrato" height="90"></canvas></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- MODAL LOGIN -->
+<div class="modal-bg" id="modalLogin">
+  <div class="modal">
+    <h3>Entrar — Equipe de Nutrição</h3>
+    <div class="campo"><label>Usuário</label><input type="text" id="loginUsuario"></div>
+    <div class="campo"><label>Senha</label><input type="password" id="loginSenha"></div>
+    <div id="loginErro" class="erro"></div>
+    <div class="acoes-linha">
+      <button class="primary" onclick="fazerLogin()">Entrar</button>
+      <button class="secondary" onclick="fecharModalLogin()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PEDIDO -->
+<div class="modal-bg" id="modalEditar">
+  <div class="modal">
+    <h3>Corrigir pedido #<span id="editId"></span></h3>
+    <div class="campo"><label>Hóspede</label><input type="text" id="eHospede"></div>
+    <div class="linha-dois">
+      <div class="campo"><label>Apartamento</label><input type="text" id="eApartamento"></div>
+      <div class="campo"><label>Data</label><input type="date" id="eData"></div>
+    </div>
+    <div class="campo"><label>Origem do hóspede</label><input type="text" id="eOrigem"></div>
+    <div class="linha-dois">
+      <div class="campo"><label>Refeição</label>
+        <select id="eRefeicao"><option>Café da Manhã</option><option>Almoço</option><option>Jantar</option></select>
+      </div>
+      <div class="campo"><label>Horário de entrega</label><input type="time" id="eHorario"></div>
+    </div>
+    <div class="campo"><label>Tipo de restrição</label><input type="text" id="eTipoRestricao"></div>
+    <div class="campo"><label>Prato</label><input type="text" id="ePrato"></div>
+    <div class="campo"><label>Observações</label><textarea id="eObservacoes"></textarea></div>
+    <div id="editErro" class="erro"></div>
+    <div class="acoes-linha">
+      <button class="primary" onclick="salvarEdicao()">Salvar correção</button>
+      <button class="secondary" onclick="fecharModalEditar()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO — cole aqui a URL do seu Web App do Apps Script
+   ============================================================ */
+const CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycbwjMnhc76xCI7Q0KFq0UufzuwORfU10g3Tce1AUs4_zvv50DjmEz14JieTYB8KbyPI/exec"
+};
+
+const REFRESH_MS = 10 * 60 * 1000; // 10 minutos
+let currentUser = JSON.parse(localStorage.getItem('ra_user') || 'null');
+let currentView = 'painel';
+let charts = {};
+
+// ---------- API helpers ----------
+async function apiGet(action, params) {
+  const qs = new URLSearchParams(Object.assign({ action }, params || {})).toString();
+  const res = await fetch(CONFIG.API_URL + '?' + qs);
+  return res.json();
+}
+async function apiPost(action, payload) {
+  const res = await fetch(CONFIG.API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(Object.assign({ action }, payload || {}))
+  });
+  return res.json();
+}
+
+// ---------- Navegação ----------
+document.querySelectorAll('nav button[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => showView(btn.dataset.view));
+});
+document.getElementById('btnLoginNav').addEventListener('click', () => {
+  if (currentUser) { logout(); } else { abrirModalLogin(); }
+});
+
+function showView(nome) {
+  currentView = nome;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + nome).classList.add('active');
+  document.querySelectorAll('nav button[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === nome));
+  refreshView(nome);
+}
+
+function refreshView(nome) {
+  if (nome === 'painel') carregarPainel();
+  if (nome === 'solicitar') prepararSolicitar();
+  if (nome === 'entregas') prepararEntregas();
+  if (nome === 'dashboard') prepararDashboard();
+}
+
+// ---------- Auth ----------
+function atualizarUserArea() {
+  const area = document.getElementById('userArea');
+  const btnLogin = document.getElementById('btnLoginNav');
+  if (currentUser) {
+    area.textContent = currentUser.nome + ' • ' + currentUser.cargo;
+    btnLogin.textContent = 'Sair';
+  } else {
+    area.textContent = 'Visitante (somente Painel da Cozinha)';
+    btnLogin.textContent = 'Entrar';
+  }
+}
+function abrirModalLogin() {
+  document.getElementById('loginErro').textContent = '';
+  document.getElementById('loginUsuario').value = '';
+  document.getElementById('loginSenha').value = '';
+  document.getElementById('modalLogin').classList.add('active');
+}
+function fecharModalLogin() { document.getElementById('modalLogin').classList.remove('active'); }
+
+async function fazerLogin() {
+  const usuario = document.getElementById('loginUsuario').value.trim();
+  const senha = document.getElementById('loginSenha').value;
+  const r = await apiPost('login', { usuario, senha });
+  if (r.ok) {
+    currentUser = r.user;
+    localStorage.setItem('ra_user', JSON.stringify(currentUser));
+    fecharModalLogin();
+    atualizarUserArea();
+    refreshView(currentView);
+  } else {
+    document.getElementById('loginErro').textContent = r.error || 'Falha no login';
+  }
+}
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('ra_user');
+  atualizarUserArea();
+  refreshView(currentView);
+}
+
+// ---------- Painel da Cozinha ----------
+function hojeISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+async function carregarPainel() {
+  document.getElementById('dataHojeLabel').textContent = new Date().toLocaleDateString('pt-BR');
+  const grid = document.getElementById('painelGrid');
+  grid.innerHTML = '<div class="empty">Carregando...</div>';
+  let pedidos = [];
+  try {
+    pedidos = await apiGet('listPedidos', { data: hojeISO() });
+  } catch (e) {
+    grid.innerHTML = '<div class="empty">Não foi possível carregar. Verifique a conexão / URL do backend.</div>';
+    return;
+  }
+  const grupos = { 'Café da Manhã': { classe: 'cafe', itens: [] }, 'Almoço': { classe: 'almoco', itens: [] }, 'Jantar': { classe: 'jantar', itens: [] } };
+  pedidos.forEach(p => { if (grupos[p.refeicao]) grupos[p.refeicao].itens.push(p); });
+
+  grid.innerHTML = '';
+  Object.keys(grupos).forEach(refeicao => {
+    const g = grupos[refeicao];
+    const col = document.createElement('div');
+    col.className = 'coluna-refeicao ' + g.classe;
+    let html = '<h3>' + refeicao + ' (' + g.itens.length + ')</h3>';
+    if (g.itens.length === 0) {
+      html += '<div class="empty">Nenhuma restrição para este horário</div>';
+    } else {
+      g.itens.forEach(p => {
+        const pronto = p.status_pronto === 'Sim';
+        html += `
+          <div class="pedido-card">
+            <div class="linha1">
+              <div class="nome">${escapeHtml(p.hospede)}</div>
+              <div class="apto">Apto ${escapeHtml(p.apartamento)}</div>
+            </div>
+            <span class="tag">${escapeHtml(p.tipo_restricao)}</span>
+            <div class="prato">${escapeHtml(p.prato)}</div>
+            <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+            <button class="status-btn ${pronto ? 'pronto' : 'pendente'}" onclick="togglePronto('${p.id}', ${!pronto})">
+              ${pronto ? '✓ Pronto' : 'Marcar como pronto'}
+            </button>
+          </div>`;
+      });
+    }
+    col.innerHTML = html;
+    grid.appendChild(col);
+  });
+  document.getElementById('ultimaAtualizacaoPainel').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+async function togglePronto(id, novoStatus) {
+  await apiPost('markPronto', { id, status_pronto: novoStatus ? 'Sim' : 'Não' });
+  carregarPainel();
+}
+
+// ---------- Solicitar Prato ----------
+let metaCarregada = false;
+async function prepararSolicitar() {
+  const bloqueado = !currentUser;
+  document.getElementById('solicitarBloqueado').style.display = bloqueado ? 'block' : 'none';
+  document.getElementById('formSolicitar').style.display = bloqueado ? 'none' : 'block';
+  if (bloqueado) return;
+
+  document.getElementById('nutriResponsavel').value = currentUser.nome;
+  document.getElementById('fDataInicio').value = hojeISO();
+
+  if (!metaCarregada) {
+    try {
+      const meta = await apiGet('meta', {});
+      const sel = document.getElementById('fTipoRestricao');
+      sel.innerHTML = '';
+      (meta.tiposRestricao || []).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = t;
+        sel.appendChild(opt);
+      });
+      const selOrigem = document.getElementById('fOrigem');
+      selOrigem.innerHTML = '';
+      (meta.origens || ['Recepção', 'Central de Reservas', 'Atendimento no Salão', 'Outro']).forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o; opt.textContent = o;
+        selOrigem.appendChild(opt);
+      });
+      metaCarregada = true;
+    } catch (e) { /* segue com select vazio se falhar */ }
+  }
+}
+document.getElementById('fTipoRestricao').addEventListener('change', e => {
+  document.getElementById('campoOutraRestricao').style.display = e.target.value === 'Outro' ? 'block' : 'none';
+});
+document.getElementById('fOrigem').addEventListener('change', e => {
+  document.getElementById('campoOutraOrigem').style.display = e.target.value === 'Outro' ? 'block' : 'none';
+});
+
+document.getElementById('formSolicitar').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('msgSolicitar');
+  msg.textContent = '';
+
+  const tipoSel = document.getElementById('fTipoRestricao').value;
+  const tipoFinal = tipoSel === 'Outro' ? document.getElementById('fTipoRestricaoOutro').value.trim() : tipoSel;
+
+  const origemSel = document.getElementById('fOrigem').value;
+  const origemFinal = origemSel === 'Outro' ? document.getElementById('fOrigemOutro').value.trim() : origemSel;
+
+  const refeicoes = {};
+  if (document.getElementById('chkCafe').checked) refeicoes['Café da Manhã'] = document.getElementById('hCafe').value;
+  if (document.getElementById('chkAlmoco').checked) refeicoes['Almoço'] = document.getElementById('hAlmoco').value;
+  if (document.getElementById('chkJantar').checked) refeicoes['Jantar'] = document.getElementById('hJantar').value;
+
+  if (Object.keys(refeicoes).length === 0) { msg.textContent = 'Selecione ao menos uma refeição.'; return; }
+  if (!tipoFinal) { msg.textContent = 'Informe o tipo de restrição.'; return; }
+  if (!origemFinal) { msg.textContent = 'Informe a origem do hóspede.'; return; }
+
+  const payload = {
+    hospede: document.getElementById('fHospede').value.trim(),
+    apartamento: document.getElementById('fApartamento').value.trim(),
+    reserva: document.getElementById('fReserva').value.trim(),
+    origem: origemFinal,
+    tipo_restricao: tipoFinal,
+    prato: document.getElementById('fPrato').value.trim(),
+    data_inicio: document.getElementById('fDataInicio').value,
+    noites: document.getElementById('fNoites').value,
+    refeicoes: refeicoes,
+    nutri_responsavel: currentUser.nome,
+    observacoes: document.getElementById('fObservacoes').value.trim()
+  };
+
+  const r = await apiPost('createPedido', payload);
+  if (r.ok) {
+    msg.style.color = 'var(--verde-escuro)';
+    msg.textContent = 'Pedido lançado com sucesso! ' + r.linhas_criadas + ' refeição(ões) programada(s).';
+    document.getElementById('formSolicitar').reset();
+    document.getElementById('fDataInicio').value = hojeISO();
+    document.getElementById('nutriResponsavel').value = currentUser.nome;
+    document.getElementById('campoOutraRestricao').style.display = 'none';
+    document.getElementById('campoOutraOrigem').style.display = 'none';
+  } else {
+    msg.style.color = 'var(--vermelho)';
+    msg.textContent = r.error || 'Erro ao lançar pedido.';
+  }
+});
+
+// ---------- Gerenciar Entregas ----------
+function prepararEntregas() {
+  const bloqueado = !currentUser;
+  document.getElementById('entregasBloqueado').style.display = bloqueado ? 'block' : 'none';
+  document.getElementById('entregasConteudo').style.display = bloqueado ? 'none' : 'block';
+  if (bloqueado) return;
+  if (!document.getElementById('filtroDataEntregas').value) {
+    document.getElementById('filtroDataEntregas').value = hojeISO();
+  }
+  carregarEntregas();
+}
+
+let pedidosEntregasAtual = [];
+
+async function carregarEntregas() {
+  const data = document.getElementById('filtroDataEntregas').value || hojeISO();
+  const wrap = document.getElementById('tabelaEntregasWrap');
+  wrap.innerHTML = '<div class="empty">Carregando...</div>';
+  const pedidos = await apiGet('listPedidos', { data });
+  pedidosEntregasAtual = pedidos;
+
+  if (pedidos.length === 0) {
+    wrap.innerHTML = '<div class="empty">Nenhum pedido nesta data.</div>';
+    return;
+  }
+
+  let html = '<table><thead><tr><th>Refeição</th><th>Hóspede</th><th>Apto</th><th>Origem</th><th>Restrição</th><th>Prato</th><th>Horário</th><th>Pronto</th><th>Entregue</th><th>Ações</th></tr></thead><tbody>';
+  pedidos.forEach(p => {
+    html += `<tr>
+      <td>${escapeHtml(p.refeicao)}</td>
+      <td>${escapeHtml(p.hospede)}</td>
+      <td>${escapeHtml(p.apartamento)}</td>
+      <td>${escapeHtml(p.origem || '—')}</td>
+      <td>${escapeHtml(p.tipo_restricao)}</td>
+      <td>${escapeHtml(p.prato)}</td>
+      <td>${escapeHtml(p.horario_entrega || '—')}</td>
+      <td><span class="pill ${p.status_pronto === 'Sim' ? 'sim' : 'nao'}">${p.status_pronto}</span></td>
+      <td><span class="pill ${p.entregue === 'Sim' ? 'sim' : 'nao'}">${p.entregue}</span></td>
+      <td class="acoes-linha">
+        <button class="secondary small" onclick="toggleEntregue('${p.id}', ${p.entregue !== 'Sim'})">${p.entregue === 'Sim' ? 'Desmarcar' : 'Marcar entregue'}</button>
+        <button class="secondary small" onclick="abrirModalEditarPorId('${p.id}')">Corrigir</button>
+        <button class="danger small" onclick="excluirPedido('${p.id}')">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+async function toggleEntregue(id, novoStatus) {
+  await apiPost('markEntregue', { id, entregue: novoStatus ? 'Sim' : 'Não' });
+  carregarEntregas();
+}
+
+async function excluirPedido(id) {
+  if (!confirm('Excluir este pedido? Esta ação não pode ser desfeita.')) return;
+  await apiPost('deletePedido', { id });
+  carregarEntregas();
+}
+
+let editandoId = null;
+function abrirModalEditarPorId(id) {
+  const p = pedidosEntregasAtual.find(x => String(x.id) === String(id));
+  if (!p) { alert('Pedido não encontrado na lista atual. Atualize a página.'); return; }
+  abrirModalEditar(p);
+}
+function abrirModalEditar(p) {
+  editandoId = p.id;
+  document.getElementById('editId').textContent = p.id;
+  document.getElementById('eHospede').value = p.hospede;
+  document.getElementById('eApartamento').value = p.apartamento;
+  document.getElementById('eData').value = p.data;
+  document.getElementById('eOrigem').value = p.origem || '';
+  document.getElementById('eRefeicao').value = p.refeicao;
+  document.getElementById('eHorario').value = p.horario_entrega;
+  document.getElementById('eTipoRestricao').value = p.tipo_restricao;
+  document.getElementById('ePrato').value = p.prato;
+  document.getElementById('eObservacoes').value = p.observacoes;
+  document.getElementById('editErro').textContent = '';
+  document.getElementById('modalEditar').classList.add('active');
+}
+function fecharModalEditar() { document.getElementById('modalEditar').classList.remove('active'); }
+
+async function salvarEdicao() {
+  const payload = {
+    id: editandoId,
+    hospede: document.getElementById('eHospede').value.trim(),
+    apartamento: document.getElementById('eApartamento').value.trim(),
+    data: document.getElementById('eData').value,
+    origem: document.getElementById('eOrigem').value.trim(),
+    refeicao: document.getElementById('eRefeicao').value,
+    horario_entrega: document.getElementById('eHorario').value,
+    tipo_restricao: document.getElementById('eTipoRestricao').value.trim(),
+    prato: document.getElementById('ePrato').value.trim(),
+    observacoes: document.getElementById('eObservacoes').value.trim()
+  };
+  const r = await apiPost('updatePedido', payload);
+  if (r.ok) {
+    fecharModalEditar();
+    carregarEntregas();
+  } else {
+    document.getElementById('editErro').textContent = r.error || 'Erro ao salvar';
+  }
+}
+
+// ---------- Dashboard ----------
+function prepararDashboard() {
+  const bloqueado = !currentUser;
+  document.getElementById('dashboardBloqueado').style.display = bloqueado ? 'block' : 'none';
+  document.getElementById('dashboardConteudo').style.display = bloqueado ? 'none' : 'block';
+  if (bloqueado) return;
+  if (!document.getElementById('dashDataInicio').value) {
+    const d = new Date(); d.setDate(d.getDate() - 30);
+    document.getElementById('dashDataInicio').value = d.toISOString().slice(0, 10);
+    document.getElementById('dashDataFim').value = hojeISO();
+  }
+  carregarDashboard();
+}
+
+async function carregarDashboard() {
+  const dataInicio = document.getElementById('dashDataInicio').value;
+  const dataFim = document.getElementById('dashDataFim').value;
+  const pedidos = await apiGet('listPedidos', { dataInicio, dataFim });
+
+  const kpis = document.getElementById('dashKpis');
+  kpis.innerHTML = `
+    <div class="kpi"><div class="num">${pedidos.length}</div><div class="lbl">Total de pedidos</div></div>
+    <div class="kpi"><div class="num">${new Set(pedidos.map(p => p.hospede + '|' + p.apartamento)).size}</div><div class="lbl">Hóspedes atendidos</div></div>
+    <div class="kpi"><div class="num">${pedidos.filter(p => p.entregue === 'Sim').length}</div><div class="lbl">Entregues</div></div>
+    <div class="kpi"><div class="num">${pedidos.filter(p => p.status_pronto !== 'Sim').length}</div><div class="lbl">Pendentes na cozinha</div></div>
+  `;
+
+  desenharGrafico('chartTipo', 'bar', contarPor(pedidos, 'tipo_restricao'));
+  desenharGrafico('chartRefeicao', 'doughnut', contarPor(pedidos, 'refeicao'));
+  desenharGrafico('chartOrigem', 'doughnut', contarPor(pedidos, 'origem'));
+  desenharGrafico('chartNutri', 'bar', contarPor(pedidos, 'nutri_responsavel'));
+  desenharGrafico('chartPrato', 'bar', contarPor(pedidos, 'prato', 10));
+}
+
+function contarPor(lista, campo, top) {
+  const contagem = {};
+  lista.forEach(p => {
+    const chave = p[campo] || '—';
+    contagem[chave] = (contagem[chave] || 0) + 1;
+  });
+  let entradas = Object.entries(contagem).sort((a, b) => b[1] - a[1]);
+  if (top) entradas = entradas.slice(0, top);
+  return { labels: entradas.map(e => e[0]), valores: entradas.map(e => e[1]) };
+}
+
+const CORES = ['#1f7a5c', '#d97b29', '#2c5f8a', '#c0392b', '#8e5fc0', '#c0a02c', '#2c9aa6', '#a04d8e'];
+
+function desenharGrafico(canvasId, tipo, dados) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart(ctx, {
+    type: tipo,
+    data: {
+      labels: dados.labels,
+      datasets: [{
+        data: dados.valores,
+        backgroundColor: dados.labels.map((_, i) => CORES[i % CORES.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: tipo === 'doughnut' } },
+      scales: tipo === 'bar' ? { y: { beginAtZero: true, ticks: { precision: 0 } } } : {}
+    }
+  });
+}
+
+// ---------- Util ----------
+function escapeHtml(str) {
+  if (str === undefined || str === null) return '';
+  return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+// ---------- Modo TV ----------
+const params = new URLSearchParams(window.location.search);
+if (params.get('tv') === '1') {
+  document.body.classList.add('modo-tv');
+}
+
+// ---------- Inicialização ----------
+atualizarUserArea();
+showView('painel');
+setInterval(() => refreshView(currentView), REFRESH_MS);
+</script>
+</body>
+</html>
