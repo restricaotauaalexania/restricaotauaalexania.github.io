@@ -77,6 +77,22 @@
   .refeicao-check .rc-nome{flex:1;font-size:14px;}
   .refeicao-check input[type=time]{width:110px;padding:6px;border:1px solid var(--borda);border-radius:5px;}
   .linha-dois{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .linha-tres{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .plano-box{border:1px solid var(--borda);border-radius:8px;padding:14px;background:#fafbfa;}
+  .plano-avulso{border-top:1px dashed var(--borda);margin-top:14px;padding-top:6px;}
+  .plano-lista{margin-top:12px;}
+  .plano-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--borda);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:13px;}
+  .plano-item .info{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .plano-item .data-badge{background:var(--verde-claro);color:var(--verde-escuro);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;white-space:nowrap;}
+  .plano-item button{background:none;border:none;color:var(--vermelho);cursor:pointer;font-size:17px;padding:0 4px;line-height:1;}
+  .painel-subnav{display:flex;gap:8px;margin-bottom:16px;}
+  .painel-subnav button{background:#fff;border:1.5px solid var(--borda);color:var(--texto);padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s ease;}
+  .painel-subnav button.active{background:var(--verde);color:#fff;border-color:var(--verde);}
+  .painel-subnav button:hover{border-color:var(--verde);}
+  .status-badge{display:inline-block;padding:4px 10px;border-radius:10px;font-size:12px;font-weight:600;margin-top:8px;}
+  .status-badge.entregue{background:var(--verde-claro);color:var(--verde-escuro);}
+  .status-badge.aguardando{background:#fff3e0;color:#c26a1f;}
+  .status-badge.atrasado{background:#fdecea;color:var(--vermelho);}
   table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--borda);border-radius:8px;overflow:hidden;}
   table th, table td{padding:10px;border-bottom:1px solid var(--borda);font-size:13px;text-align:left;vertical-align:top;}
   table th{background:#f0f3f1;font-weight:600;}
@@ -111,6 +127,7 @@
   body.modo-tv .pedido-card .apto{font-size:14px;}
   body.modo-tv .status-btn{font-size:16px;padding:12px;}
   body.modo-tv .coluna-refeicao h3{font-size:20px;padding:12px 16px;}
+  body.modo-tv .painel-subnav{display:none;}
 </style>
 </head>
 <body>
@@ -141,6 +158,10 @@
         <span class="muted" id="ultimaAtualizacaoPainel">—</span>
         <button class="secondary" onclick="carregarPainel()">Atualizar agora</button>
       </div>
+    </div>
+    <div class="painel-subnav" id="painelSubnav">
+      <button data-sub="pendentes" class="active" onclick="setPainelSubview('pendentes')">Pendentes</button>
+      <button data-sub="prontos" onclick="setPainelSubview('prontos')">Prontos / Entregues do dia</button>
     </div>
     <div class="refeicoes-grid" id="painelGrid"></div>
   </section>
@@ -192,32 +213,49 @@
         <label>Prato solicitado pela nutrição *</label>
         <input type="text" id="fPrato" required>
       </div>
-      <div class="linha-dois">
-        <div class="campo">
-          <label>Data de início *</label>
-          <input type="date" id="fDataInicio" required>
-        </div>
-        <div class="campo">
-          <label>Número de noites/dias *</label>
-          <input type="number" id="fNoites" min="1" value="1" required>
-        </div>
-      </div>
       <div class="campo">
-        <label>Refeições e horário de entrega</label>
-        <div class="refeicao-check">
-          <input type="checkbox" id="chkCafe" checked>
-          <div class="rc-nome">Café da Manhã</div>
-          <input type="time" id="hCafe" value="07:30">
-        </div>
-        <div class="refeicao-check">
-          <input type="checkbox" id="chkAlmoco">
-          <div class="rc-nome">Almoço</div>
-          <input type="time" id="hAlmoco" value="12:30">
-        </div>
-        <div class="refeicao-check">
-          <input type="checkbox" id="chkJantar">
-          <div class="rc-nome">Jantar</div>
-          <input type="time" id="hJantar" value="20:00">
+        <label>Plano de refeições *</label>
+        <div class="plano-box">
+          <div class="muted" style="margin-bottom:10px;">Se o hóspede já informou toda a estadia, monte o plano completo aqui — dias e refeições diferentes podem ser combinados antes de lançar tudo de uma vez.</div>
+          <div class="linha-dois">
+            <div class="campo"><label>Data de início</label><input type="date" id="planoData"></div>
+            <div class="campo"><label>Repetir por quantos dias?</label><input type="number" id="planoDias" min="1" value="1"></div>
+          </div>
+          <div class="refeicao-check">
+            <input type="checkbox" id="chkCafe" checked>
+            <div class="rc-nome">Café da Manhã</div>
+            <input type="time" id="hCafe" value="07:30">
+          </div>
+          <div class="refeicao-check">
+            <input type="checkbox" id="chkAlmoco">
+            <div class="rc-nome">Almoço</div>
+            <input type="time" id="hAlmoco" value="12:30">
+          </div>
+          <div class="refeicao-check">
+            <input type="checkbox" id="chkJantar">
+            <div class="rc-nome">Jantar</div>
+            <input type="time" id="hJantar" value="20:00">
+          </div>
+          <button type="button" class="secondary small" onclick="adicionarVariosDiasPlano()">+ Adicionar ao plano</button>
+
+          <div class="plano-avulso">
+            <div class="muted" style="margin-bottom:6px;">Refeição avulsa (dia fora do padrão acima):</div>
+            <div class="linha-tres">
+              <div class="campo"><label>Data</label><input type="date" id="avulsoData"></div>
+              <div class="campo"><label>Refeição</label>
+                <select id="avulsoRefeicao">
+                  <option>Café da Manhã</option>
+                  <option>Almoço</option>
+                  <option>Jantar</option>
+                </select>
+              </div>
+              <div class="campo"><label>Horário</label><input type="time" id="avulsoHorario" value="07:30"></div>
+            </div>
+            <button type="button" class="secondary small" onclick="adicionarItemAvulso()">+ Adicionar refeição avulsa</button>
+          </div>
+
+          <div id="planoLista" class="plano-lista"></div>
+          <div id="planoVazio" class="muted" style="margin-top:8px;">Nenhuma refeição adicionada ainda.</div>
         </div>
       </div>
       <div class="campo">
@@ -409,19 +447,40 @@ function hojeISO() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+let pedidosPainelAtual = [];
+let painelSubview = 'pendentes';
+
+function setPainelSubview(v) {
+  painelSubview = v;
+  document.querySelectorAll('#painelSubnav button').forEach(b => b.classList.toggle('active', b.dataset.sub === v));
+  renderPainel();
+}
+
 async function carregarPainel() {
   document.getElementById('dataHojeLabel').textContent = new Date().toLocaleDateString('pt-BR');
   const grid = document.getElementById('painelGrid');
   grid.innerHTML = '<div class="empty">Carregando...</div>';
-  let pedidos = [];
   try {
-    pedidos = await apiGet('listPedidos', { data: hojeISO() });
+    pedidosPainelAtual = await apiGet('listPedidos', { data: hojeISO() });
   } catch (e) {
     grid.innerHTML = '<div class="empty">Não foi possível carregar. Verifique a conexão / URL do backend.</div>';
     return;
   }
+  renderPainel();
+  document.getElementById('ultimaAtualizacaoPainel').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+function renderPainel() {
+  const grid = document.getElementById('painelGrid');
+  grid.className = 'refeicoes-grid';
+  if (painelSubview === 'pendentes') renderPainelPendentes(grid);
+  else renderPainelProntos(grid);
+}
+
+function renderPainelPendentes(grid) {
+  const pendentes = pedidosPainelAtual.filter(p => p.status_pronto !== 'Sim');
   const grupos = { 'Café da Manhã': { classe: 'cafe', itens: [] }, 'Almoço': { classe: 'almoco', itens: [] }, 'Jantar': { classe: 'jantar', itens: [] } };
-  pedidos.forEach(p => { if (grupos[p.refeicao]) grupos[p.refeicao].itens.push(p); });
+  pendentes.forEach(p => { if (grupos[p.refeicao]) grupos[p.refeicao].itens.push(p); });
 
   grid.innerHTML = '';
   Object.keys(grupos).forEach(refeicao => {
@@ -430,10 +489,9 @@ async function carregarPainel() {
     col.className = 'coluna-refeicao ' + g.classe;
     let html = '<h3>' + refeicao + ' (' + g.itens.length + ')</h3>';
     if (g.itens.length === 0) {
-      html += '<div class="empty">Nenhuma restrição para este horário</div>';
+      html += '<div class="empty">Nenhuma restrição pendente</div>';
     } else {
       g.itens.forEach(p => {
-        const pronto = p.status_pronto === 'Sim';
         html += `
           <div class="pedido-card">
             <div class="linha1">
@@ -443,16 +501,46 @@ async function carregarPainel() {
             <span class="tag">${escapeHtml(p.tipo_restricao)}</span>
             <div class="prato">${escapeHtml(p.prato)}</div>
             <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
-            <button class="status-btn ${pronto ? 'pronto' : 'pendente'}" onclick="togglePronto('${p.id}', ${!pronto})">
-              ${pronto ? '✓ Pronto' : 'Marcar como pronto'}
-            </button>
+            <button class="status-btn pendente" onclick="togglePronto('${p.id}', true)">Marcar como pronto</button>
           </div>`;
       });
     }
     col.innerHTML = html;
     grid.appendChild(col);
   });
-  document.getElementById('ultimaAtualizacaoPainel').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+function statusEntregaInfo(p) {
+  if (p.entregue === 'Sim') return { classe: 'entregue', label: '✓ Entregue' };
+  const agora = new Date();
+  const hhmm = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+  if (p.horario_entrega && hhmm > p.horario_entrega) return { classe: 'atrasado', label: 'Atrasado' };
+  return { classe: 'aguardando', label: 'Pronto (aguardando retirada)' };
+}
+
+function renderPainelProntos(grid) {
+  const prontos = pedidosPainelAtual.filter(p => p.status_pronto === 'Sim');
+  if (prontos.length === 0) {
+    grid.innerHTML = '<div class="empty">Nenhum pedido pronto ou entregue ainda hoje.</div>';
+    return;
+  }
+  const ordenado = [...prontos].sort((a, b) => String(a.horario_entrega).localeCompare(String(b.horario_entrega)));
+  grid.innerHTML = ordenado.map(p => {
+    const info = statusEntregaInfo(p);
+    return `
+      <div class="pedido-card">
+        <div class="linha1">
+          <div class="nome">${escapeHtml(p.hospede)}</div>
+          <div class="apto">Apto ${escapeHtml(p.apartamento)}</div>
+        </div>
+        <span class="tag">${escapeHtml(p.refeicao)}</span>
+        <span class="tag">${escapeHtml(p.tipo_restricao)}</span>
+        <div class="prato">${escapeHtml(p.prato)}</div>
+        <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+        <div><span class="status-badge ${info.classe}">${info.label}</span></div>
+        ${p.entregue !== 'Sim' ? `<button class="status-btn pronto" style="margin-top:8px;" onclick="togglePronto('${p.id}', false)">Desfazer (voltar para pendente)</button>` : ''}
+      </div>`;
+  }).join('');
 }
 
 async function togglePronto(id, novoStatus) {
@@ -462,6 +550,9 @@ async function togglePronto(id, novoStatus) {
 
 // ---------- Solicitar Prato ----------
 let metaCarregada = false;
+let planoInicializado = false;
+let planoRefeicoes = []; // { data:'yyyy-mm-dd', refeicao, horario }
+
 async function prepararSolicitar() {
   const bloqueado = !currentUser;
   document.getElementById('solicitarBloqueado').style.display = bloqueado ? 'block' : 'none';
@@ -469,7 +560,11 @@ async function prepararSolicitar() {
   if (bloqueado) return;
 
   document.getElementById('nutriResponsavel').value = currentUser.nome;
-  document.getElementById('fDataInicio').value = hojeISO();
+  if (!planoInicializado) {
+    document.getElementById('planoData').value = hojeISO();
+    document.getElementById('avulsoData').value = hojeISO();
+    planoInicializado = true;
+  }
 
   if (!metaCarregada) {
     try {
@@ -499,6 +594,75 @@ document.getElementById('fOrigem').addEventListener('change', e => {
   document.getElementById('campoOutraOrigem').style.display = e.target.value === 'Outro' ? 'block' : 'none';
 });
 
+// ---------- Plano de refeições (suporta dias/refeições diferentes numa só submissão) ----------
+function formatDataBR(iso) {
+  if (!iso) return '—';
+  const partes = iso.split('-');
+  if (partes.length !== 3) return iso;
+  return partes[2] + '/' + partes[1] + '/' + partes[0];
+}
+
+function renderPlanoLista() {
+  const wrap = document.getElementById('planoLista');
+  const vazio = document.getElementById('planoVazio');
+  if (planoRefeicoes.length === 0) {
+    wrap.innerHTML = '';
+    vazio.style.display = 'block';
+    return;
+  }
+  vazio.style.display = 'none';
+  const ordemRefeicao = { 'Café da Manhã': 0, 'Almoço': 1, 'Jantar': 2 };
+  const comIndice = planoRefeicoes.map((item, i) => ({ item, i }));
+  comIndice.sort((a, b) => {
+    if (a.item.data !== b.item.data) return a.item.data < b.item.data ? -1 : 1;
+    return (ordemRefeicao[a.item.refeicao] ?? 9) - (ordemRefeicao[b.item.refeicao] ?? 9);
+  });
+  wrap.innerHTML = comIndice.map(({ item, i }) => `
+    <div class="plano-item">
+      <div class="info">
+        <span class="data-badge">${formatDataBR(item.data)}</span>
+        <span>${escapeHtml(item.refeicao)}</span>
+        <span class="muted">${escapeHtml(item.horario || '—')}</span>
+      </div>
+      <button type="button" onclick="removerItemPlano(${i})" title="Remover">✕</button>
+    </div>`).join('');
+}
+
+function adicionarVariosDiasPlano() {
+  const dataInicio = document.getElementById('planoData').value;
+  const dias = parseInt(document.getElementById('planoDias').value, 10) || 1;
+  if (!dataInicio) { alert('Informe a data de início do plano.'); return; }
+
+  const refs = [];
+  if (document.getElementById('chkCafe').checked) refs.push(['Café da Manhã', document.getElementById('hCafe').value]);
+  if (document.getElementById('chkAlmoco').checked) refs.push(['Almoço', document.getElementById('hAlmoco').value]);
+  if (document.getElementById('chkJantar').checked) refs.push(['Jantar', document.getElementById('hJantar').value]);
+  if (refs.length === 0) { alert('Marque ao menos uma refeição para adicionar.'); return; }
+
+  const base = new Date(dataInicio + 'T00:00:00');
+  for (let n = 0; n < dias; n++) {
+    const d = new Date(base.getTime());
+    d.setDate(d.getDate() + n);
+    const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    refs.forEach(([refeicao, horario]) => planoRefeicoes.push({ data: iso, refeicao, horario }));
+  }
+  renderPlanoLista();
+}
+
+function adicionarItemAvulso() {
+  const data = document.getElementById('avulsoData').value;
+  const refeicao = document.getElementById('avulsoRefeicao').value;
+  const horario = document.getElementById('avulsoHorario').value;
+  if (!data) { alert('Informe a data da refeição avulsa.'); return; }
+  planoRefeicoes.push({ data, refeicao, horario });
+  renderPlanoLista();
+}
+
+function removerItemPlano(i) {
+  planoRefeicoes.splice(i, 1);
+  renderPlanoLista();
+}
+
 document.getElementById('formSolicitar').addEventListener('submit', async (e) => {
   e.preventDefault();
   const msg = document.getElementById('msgSolicitar');
@@ -510,12 +674,7 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
   const origemSel = document.getElementById('fOrigem').value;
   const origemFinal = origemSel === 'Outro' ? document.getElementById('fOrigemOutro').value.trim() : origemSel;
 
-  const refeicoes = {};
-  if (document.getElementById('chkCafe').checked) refeicoes['Café da Manhã'] = document.getElementById('hCafe').value;
-  if (document.getElementById('chkAlmoco').checked) refeicoes['Almoço'] = document.getElementById('hAlmoco').value;
-  if (document.getElementById('chkJantar').checked) refeicoes['Jantar'] = document.getElementById('hJantar').value;
-
-  if (Object.keys(refeicoes).length === 0) { msg.textContent = 'Selecione ao menos uma refeição.'; return; }
+  if (planoRefeicoes.length === 0) { msg.textContent = 'Adicione ao menos uma refeição ao plano.'; return; }
   if (!tipoFinal) { msg.textContent = 'Informe o tipo de restrição.'; return; }
   if (!origemFinal) { msg.textContent = 'Informe a origem do hóspede.'; return; }
 
@@ -526,9 +685,7 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
     origem: origemFinal,
     tipo_restricao: tipoFinal,
     prato: document.getElementById('fPrato').value.trim(),
-    data_inicio: document.getElementById('fDataInicio').value,
-    noites: document.getElementById('fNoites').value,
-    refeicoes: refeicoes,
+    itens: planoRefeicoes,
     nutri_responsavel: currentUser.nome,
     observacoes: document.getElementById('fObservacoes').value.trim()
   };
@@ -538,10 +695,13 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
     msg.style.color = 'var(--verde-escuro)';
     msg.textContent = 'Pedido lançado com sucesso! ' + r.linhas_criadas + ' refeição(ões) programada(s).';
     document.getElementById('formSolicitar').reset();
-    document.getElementById('fDataInicio').value = hojeISO();
     document.getElementById('nutriResponsavel').value = currentUser.nome;
     document.getElementById('campoOutraRestricao').style.display = 'none';
     document.getElementById('campoOutraOrigem').style.display = 'none';
+    planoRefeicoes = [];
+    renderPlanoLista();
+    document.getElementById('planoData').value = hojeISO();
+    document.getElementById('avulsoData').value = hojeISO();
   } else {
     msg.style.color = 'var(--vermelho)';
     msg.textContent = r.error || 'Erro ao lançar pedido.';
