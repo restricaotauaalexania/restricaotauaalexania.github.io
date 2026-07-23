@@ -17,10 +17,27 @@
   header{background:var(--verde-escuro);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
   header h1{font-size:18px;margin:0;font-weight:600;}
   header .sub{font-size:12px;opacity:.85;font-weight:400;}
-  nav{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:1px solid var(--borda);}
-  nav button{background:none;border:1px solid var(--borda);color:var(--texto);padding:8px 14px;border-radius:20px;cursor:pointer;font-size:13px;}
-  nav button.active{background:var(--verde);color:#fff;border-color:var(--verde);}
-  nav button:hover{border-color:var(--verde);}
+  nav{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:#fff;border-bottom:1px solid var(--borda);}
+  nav button{
+    background:#fff;border:1.5px solid var(--borda);color:var(--texto);
+    padding:9px 18px;border-radius:24px;cursor:pointer;font-size:13px;font-weight:600;
+    transition:transform .2s cubic-bezier(.4,0,.2,1), box-shadow .2s ease, background .3s ease, color .3s ease, border-color .3s ease;
+    animation:navFadeIn .45s ease backwards;
+  }
+  nav button:nth-child(1){animation-delay:.02s;}
+  nav button:nth-child(2){animation-delay:.08s;}
+  nav button:nth-child(3){animation-delay:.14s;}
+  nav button:nth-child(4){animation-delay:.20s;}
+  nav button:nth-child(5){animation-delay:.26s;}
+  nav button.active{
+    background:linear-gradient(135deg,var(--verde),var(--verde-escuro));color:#fff;border-color:var(--verde);
+    box-shadow:0 4px 14px rgba(31,122,92,.35);transform:translateY(-1px);
+  }
+  nav button:hover{border-color:var(--verde);transform:translateY(-2px) scale(1.045);box-shadow:0 6px 16px rgba(31,122,92,.2);}
+  nav button:active{transform:translateY(0) scale(.97);}
+  #btnLoginNav{background:linear-gradient(135deg,var(--laranja),#c26a1f);color:#fff;border-color:var(--laranja);}
+  #btnLoginNav:hover{box-shadow:0 6px 16px rgba(217,123,41,.35);border-color:#c26a1f;}
+  @keyframes navFadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
   main{padding:20px;max-width:1200px;margin:0 auto;}
   .view{display:none;}
   .view.active{display:block;}
