@@ -183,8 +183,8 @@
           <input type="text" id="fHospede" required>
         </div>
         <div class="campo">
-          <label>Apartamento *</label>
-          <input type="text" id="fApartamento" required>
+          <label>Apartamento (opcional)</label>
+          <input type="text" id="fApartamento">
         </div>
       </div>
       <div class="linha-dois">
@@ -193,20 +193,24 @@
           <input type="text" id="fReserva">
         </div>
         <div class="campo">
-          <label>Origem do hóspede *</label>
-          <select id="fOrigem" required></select>
+          <label>Número de contato (opcional)</label>
+          <input type="text" id="fContato" placeholder="Ex: (61) 99999-9999">
         </div>
+      </div>
+      <div class="campo">
+        <label>Origem do hóspede *</label>
+        <select id="fOrigem" required></select>
       </div>
       <div class="campo" id="campoOutraOrigem" style="display:none;">
         <label>Qual origem? *</label>
         <input type="text" id="fOrigemOutro">
       </div>
       <div class="campo">
-        <label>Tipo de restrição *</label>
-        <select id="fTipoRestricao" required></select>
+        <label>Tipo(s) de restrição * <span class="muted">(pode marcar mais de um)</span></label>
+        <div id="tipoRestricaoLista"></div>
       </div>
       <div class="campo" id="campoOutraRestricao" style="display:none;">
-        <label>Qual restrição? *</label>
+        <label>Qual restrição (Outro)? *</label>
         <input type="text" id="fTipoRestricaoOutro">
       </div>
       <div class="campo">
@@ -329,9 +333,12 @@
     <div class="campo"><label>Hóspede</label><input type="text" id="eHospede"></div>
     <div class="linha-dois">
       <div class="campo"><label>Apartamento</label><input type="text" id="eApartamento"></div>
-      <div class="campo"><label>Data</label><input type="date" id="eData"></div>
+      <div class="campo"><label>Contato</label><input type="text" id="eContato"></div>
     </div>
-    <div class="campo"><label>Origem do hóspede</label><input type="text" id="eOrigem"></div>
+    <div class="linha-dois">
+      <div class="campo"><label>Data</label><input type="date" id="eData"></div>
+      <div class="campo"><label>Origem do hóspede</label><input type="text" id="eOrigem"></div>
+    </div>
     <div class="linha-dois">
       <div class="campo"><label>Refeição</label>
         <select id="eRefeicao"><option>Café da Manhã</option><option>Almoço</option><option>Jantar</option></select>
@@ -496,7 +503,7 @@ function renderPainelPendentes(grid) {
           <div class="pedido-card">
             <div class="linha1">
               <div class="nome">${escapeHtml(p.hospede)}</div>
-              <div class="apto">Apto ${escapeHtml(p.apartamento)}</div>
+              ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
             </div>
             <span class="tag">${escapeHtml(p.tipo_restricao)}</span>
             <div class="prato">${escapeHtml(p.prato)}</div>
@@ -531,7 +538,7 @@ function renderPainelProntos(grid) {
       <div class="pedido-card">
         <div class="linha1">
           <div class="nome">${escapeHtml(p.hospede)}</div>
-          <div class="apto">Apto ${escapeHtml(p.apartamento)}</div>
+          ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
         </div>
         <span class="tag">${escapeHtml(p.refeicao)}</span>
         <span class="tag">${escapeHtml(p.tipo_restricao)}</span>
@@ -569,12 +576,19 @@ async function prepararSolicitar() {
   if (!metaCarregada) {
     try {
       const meta = await apiGet('meta', {});
-      const sel = document.getElementById('fTipoRestricao');
-      sel.innerHTML = '';
+      const listaRestricao = document.getElementById('tipoRestricaoLista');
+      listaRestricao.innerHTML = '';
       (meta.tiposRestricao || []).forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t; opt.textContent = t;
-        sel.appendChild(opt);
+        const row = document.createElement('div');
+        row.className = 'refeicao-check';
+        const chkId = 'chkRestricao_' + t.replace(/[^a-zA-Z0-9]/g, '');
+        row.innerHTML = `<input type="checkbox" class="chkTipoRestricao" id="${chkId}" value="${escapeHtml(t)}"><div class="rc-nome">${escapeHtml(t)}</div>`;
+        listaRestricao.appendChild(row);
+        if (t === 'Outro') {
+          row.querySelector('input').addEventListener('change', e => {
+            document.getElementById('campoOutraRestricao').style.display = e.target.checked ? 'block' : 'none';
+          });
+        }
       });
       const selOrigem = document.getElementById('fOrigem');
       selOrigem.innerHTML = '';
@@ -587,9 +601,6 @@ async function prepararSolicitar() {
     } catch (e) { /* segue com select vazio se falhar */ }
   }
 }
-document.getElementById('fTipoRestricao').addEventListener('change', e => {
-  document.getElementById('campoOutraRestricao').style.display = e.target.value === 'Outro' ? 'block' : 'none';
-});
 document.getElementById('fOrigem').addEventListener('change', e => {
   document.getElementById('campoOutraOrigem').style.display = e.target.value === 'Outro' ? 'block' : 'none';
 });
@@ -668,19 +679,24 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
   const msg = document.getElementById('msgSolicitar');
   msg.textContent = '';
 
-  const tipoSel = document.getElementById('fTipoRestricao').value;
-  const tipoFinal = tipoSel === 'Outro' ? document.getElementById('fTipoRestricaoOutro').value.trim() : tipoSel;
+  const tiposMarcados = Array.from(document.querySelectorAll('.chkTipoRestricao:checked')).map(el => el.value);
+  let tipoFinal = tiposMarcados.filter(t => t !== 'Outro').join(', ');
+  if (tiposMarcados.includes('Outro')) {
+    const outro = document.getElementById('fTipoRestricaoOutro').value.trim();
+    if (outro) tipoFinal = tipoFinal ? tipoFinal + ', ' + outro : outro;
+  }
 
   const origemSel = document.getElementById('fOrigem').value;
   const origemFinal = origemSel === 'Outro' ? document.getElementById('fOrigemOutro').value.trim() : origemSel;
 
   if (planoRefeicoes.length === 0) { msg.textContent = 'Adicione ao menos uma refeição ao plano.'; return; }
-  if (!tipoFinal) { msg.textContent = 'Informe o tipo de restrição.'; return; }
+  if (!tipoFinal) { msg.textContent = 'Selecione ao menos um tipo de restrição.'; return; }
   if (!origemFinal) { msg.textContent = 'Informe a origem do hóspede.'; return; }
 
   const payload = {
     hospede: document.getElementById('fHospede').value.trim(),
     apartamento: document.getElementById('fApartamento').value.trim(),
+    contato: document.getElementById('fContato').value.trim(),
     reserva: document.getElementById('fReserva').value.trim(),
     origem: origemFinal,
     tipo_restricao: tipoFinal,
@@ -734,12 +750,13 @@ async function carregarEntregas() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Refeição</th><th>Hóspede</th><th>Apto</th><th>Origem</th><th>Restrição</th><th>Prato</th><th>Horário</th><th>Pronto</th><th>Entregue</th><th>Ações</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Refeição</th><th>Hóspede</th><th>Apto</th><th>Contato</th><th>Origem</th><th>Restrição</th><th>Prato</th><th>Horário</th><th>Pronto</th><th>Entregue</th><th>Ações</th></tr></thead><tbody>';
   pedidos.forEach(p => {
     html += `<tr>
       <td>${escapeHtml(p.refeicao)}</td>
       <td>${escapeHtml(p.hospede)}</td>
-      <td>${escapeHtml(p.apartamento)}</td>
+      <td>${escapeHtml(p.apartamento || '—')}</td>
+      <td>${escapeHtml(p.contato || '—')}</td>
       <td>${escapeHtml(p.origem || '—')}</td>
       <td>${escapeHtml(p.tipo_restricao)}</td>
       <td>${escapeHtml(p.prato)}</td>
@@ -779,6 +796,7 @@ function abrirModalEditar(p) {
   document.getElementById('editId').textContent = p.id;
   document.getElementById('eHospede').value = p.hospede;
   document.getElementById('eApartamento').value = p.apartamento;
+  document.getElementById('eContato').value = p.contato || '';
   document.getElementById('eData').value = p.data;
   document.getElementById('eOrigem').value = p.origem || '';
   document.getElementById('eRefeicao').value = p.refeicao;
@@ -796,6 +814,7 @@ async function salvarEdicao() {
     id: editandoId,
     hospede: document.getElementById('eHospede').value.trim(),
     apartamento: document.getElementById('eApartamento').value.trim(),
+    contato: document.getElementById('eContato').value.trim(),
     data: document.getElementById('eData').value,
     origem: document.getElementById('eOrigem').value.trim(),
     refeicao: document.getElementById('eRefeicao').value,
