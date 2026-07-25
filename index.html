@@ -43,6 +43,13 @@
   .view.active{display:block;}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
   .topbar h2{margin:0;font-size:20px;}
+  .topbar-acoes{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .turno-badge{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:5px 12px;border-radius:16px;font-size:12.5px;font-weight:700;color:#fff;}
+  .turno-badge.tb-cafe{background:var(--laranja);}
+  .turno-badge.tb-almoco{background:var(--azul);}
+  .turno-badge.tb-jantar{background:var(--verde-escuro);}
+  .turno-badge .faixa{font-weight:500;opacity:.85;}
+  #btnPainelFoco{font-weight:700;}
   .muted{color:var(--texto-suave);font-size:13px;}
   button.primary{background:var(--verde);color:#fff;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-size:14px;}
   button.primary:hover{background:var(--verde-escuro);}
@@ -69,6 +76,18 @@
   .vinculo-refeicoes{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:11px;color:var(--texto-suave);}
   .vinculo-refeicoes .vinc-icone{font-weight:700;font-size:12px;}
   .vinculo-refeicoes .chip{background:#f4f1fa;border:1px solid #ddd3ee;color:#5e3f8f;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;}
+  .prato-destaque{margin-top:8px;background:#eef6f2;border:1px solid #cfe6db;border-radius:8px;padding:9px 11px;}
+  .prato-destaque .pd-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--verde-escuro);margin-bottom:2px;}
+  .prato-destaque .pd-valor{font-size:16px;font-weight:700;color:var(--texto);line-height:1.3;}
+  .foco-bloco{grid-column:1 / -1;}
+  .foco-titulo{margin:0 0 14px;padding:10px 16px;border-radius:8px;color:#fff;font-size:17px;font-weight:700;}
+  .foco-titulo.cafe{background:var(--laranja);}
+  .foco-titulo.almoco{background:var(--azul);}
+  .foco-titulo.jantar{background:var(--verde-escuro);}
+  .cards-foco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
+  .refeicoes-grid.foco{display:block;}
+  body.modo-tv .foco-titulo{font-size:22px;padding:14px 18px;}
+  body.modo-tv .prato-destaque .pd-valor{font-size:20px;}
   .status-btn{margin-top:10px;width:100%;padding:8px;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
   .status-btn.pendente{background:#fdecea;color:var(--vermelho);}
   .status-btn.pronto{background:#e6f4ee;color:var(--verde-escuro);}
@@ -112,7 +131,28 @@
   .linha-dois{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .linha-tres{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
   .plano-box{border:1px solid var(--borda);border-radius:8px;padding:14px;background:#fafbfa;}
-  .plano-avulso{border-top:1px dashed var(--borda);margin-top:14px;padding-top:6px;}
+  .refeicoes-toggle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;}
+  .refeicao-toggle{border:1.5px solid var(--borda);border-radius:10px;padding:12px;background:#fff;cursor:pointer;transition:border-color .2s ease, background .2s ease;display:block;}
+  .refeicao-toggle:has(input:checked){border-color:var(--verde);background:var(--verde-claro);}
+  .refeicao-toggle .rt-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .refeicao-toggle .rt-nome{font-weight:700;font-size:14px;}
+  .refeicao-toggle .rt-horario{margin-top:10px;width:100%;padding:6px;border:1px solid var(--borda);border-radius:5px;font-size:13px;transition:opacity .2s ease;}
+  .refeicao-toggle:not(:has(input:checked)) .rt-horario{opacity:.45;pointer-events:none;}
+  .switch{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;position:absolute;}
+  .switch .slider{position:absolute;inset:0;background:#ccc;transition:.2s ease;border-radius:22px;cursor:pointer;}
+  .switch .slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;transition:.2s ease;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .switch input:checked + .slider{background:var(--verde);}
+  .switch input:checked + .slider:before{transform:translateX(16px);}
+  .plano-preview{font-size:12.5px;font-weight:700;color:var(--verde-escuro);margin:10px 0 4px;min-height:16px;}
+  .plano-preview.vazio{color:var(--texto-suave);font-weight:600;}
+  .btn-add-plano{width:100%;padding:11px;font-size:14px;font-weight:700;border-radius:8px;margin-top:2px;}
+  .avulso-details{margin-top:16px;border-top:1px dashed var(--borda);padding-top:10px;}
+  .avulso-details summary{cursor:pointer;font-size:13px;color:var(--texto-suave);font-weight:600;list-style:none;}
+  .avulso-details summary::-webkit-details-marker{display:none;}
+  .avulso-details summary:before{content:"▸ ";color:var(--verde);}
+  .avulso-details[open] summary:before{content:"▾ ";}
+  .plano-avulso{margin-top:10px;}
   .plano-lista{margin-top:12px;}
   .plano-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--borda);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:13px;animation:cardIn .3s ease;transition:border-color .2s ease;}
   .plano-item:hover{border-color:var(--verde);}
@@ -189,8 +229,12 @@
   <!-- PAINEL DA COZINHA -->
   <section id="view-painel" class="view active">
     <div class="topbar">
-      <h2>Painel da Cozinha — Hoje (<span id="dataHojeLabel"></span>)</h2>
       <div>
+        <h2>Painel da Cozinha — Hoje (<span id="dataHojeLabel"></span>)</h2>
+        <div class="turno-badge" id="turnoBadge"></div>
+      </div>
+      <div class="topbar-acoes">
+        <button class="secondary" id="btnPainelFoco" onclick="togglePainelFoco()"></button>
         <span class="muted" id="ultimaAtualizacaoPainel">—</span>
         <button class="secondary" onclick="carregarPainel()">Atualizar agora</button>
       </div>
@@ -264,43 +308,57 @@
       <div class="form-secao">
         <h4><span class="num">3</span>Plano de refeições</h4>
         <div class="plano-box">
-          <div class="muted" style="margin-bottom:10px;">Se o hóspede já informou toda a estadia, monte o plano completo aqui — dias e refeições diferentes podem ser combinados antes de lançar tudo de uma vez.</div>
-          <div class="linha-dois">
-            <div class="campo"><label>Data de início</label><input type="date" id="planoData"></div>
-            <div class="campo"><label>Repetir por quantos dias?</label><input type="number" id="planoDias" min="1" value="1"></div>
-          </div>
-          <div class="refeicao-check">
-            <input type="checkbox" id="chkCafe">
-            <div class="rc-nome">Café da Manhã</div>
-            <input type="time" id="hCafe" value="07:30">
-          </div>
-          <div class="refeicao-check">
-            <input type="checkbox" id="chkAlmoco">
-            <div class="rc-nome">Almoço</div>
-            <input type="time" id="hAlmoco" value="12:30">
-          </div>
-          <div class="refeicao-check">
-            <input type="checkbox" id="chkJantar">
-            <div class="rc-nome">Jantar</div>
-            <input type="time" id="hJantar" value="20:00">
-          </div>
-          <button type="button" class="secondary small" onclick="adicionarVariosDiasPlano()">+ Adicionar ao plano</button>
+          <div class="muted" style="margin-bottom:10px;">1) Marque quais refeições este hóspede vai receber (pode marcar as três). 2) Diga a partir de quando e por quantos dias. 3) Clique em adicionar — o plano inteiro (café + almoço + jantar, dia após dia) é criado numa vez só.</div>
 
-          <div class="plano-avulso">
-            <div class="muted" style="margin-bottom:6px;">Refeição avulsa (dia fora do padrão acima):</div>
-            <div class="linha-tres">
-              <div class="campo"><label>Data</label><input type="date" id="avulsoData"></div>
-              <div class="campo"><label>Refeição</label>
-                <select id="avulsoRefeicao">
-                  <option>Café da Manhã</option>
-                  <option>Almoço</option>
-                  <option>Jantar</option>
-                </select>
+          <div class="refeicoes-toggle-grid">
+            <label class="refeicao-toggle">
+              <div class="rt-topo">
+                <span class="rt-nome">☀️ Café da Manhã</span>
+                <span class="switch"><input type="checkbox" id="chkCafe" onchange="atualizarPreviewPlano()"><span class="slider"></span></span>
               </div>
-              <div class="campo"><label>Horário</label><input type="time" id="avulsoHorario" value="07:30"></div>
-            </div>
-            <button type="button" class="secondary small" onclick="adicionarItemAvulso()">+ Adicionar refeição avulsa</button>
+              <input type="time" id="hCafe" value="07:30" class="rt-horario">
+            </label>
+            <label class="refeicao-toggle">
+              <div class="rt-topo">
+                <span class="rt-nome">🍽️ Almoço</span>
+                <span class="switch"><input type="checkbox" id="chkAlmoco" onchange="atualizarPreviewPlano()"><span class="slider"></span></span>
+              </div>
+              <input type="time" id="hAlmoco" value="12:30" class="rt-horario">
+            </label>
+            <label class="refeicao-toggle">
+              <div class="rt-topo">
+                <span class="rt-nome">🌙 Jantar</span>
+                <span class="switch"><input type="checkbox" id="chkJantar" onchange="atualizarPreviewPlano()"><span class="slider"></span></span>
+              </div>
+              <input type="time" id="hJantar" value="20:00" class="rt-horario">
+            </label>
           </div>
+
+          <div class="linha-dois" style="margin-top:14px;">
+            <div class="campo"><label>Data de início</label><input type="date" id="planoData" onchange="atualizarPreviewPlano()"></div>
+            <div class="campo"><label>Repetir por quantos dias?</label><input type="number" id="planoDias" min="1" value="1" oninput="atualizarPreviewPlano()"></div>
+          </div>
+
+          <div id="planoPreview" class="plano-preview"></div>
+          <button type="button" class="primary btn-add-plano" onclick="adicionarVariosDiasPlano()">+ Adicionar refeições marcadas ao plano</button>
+
+          <details class="avulso-details">
+            <summary>Precisa de uma refeição fora do padrão acima? (dia avulso / exceção)</summary>
+            <div class="plano-avulso">
+              <div class="linha-tres">
+                <div class="campo"><label>Data</label><input type="date" id="avulsoData"></div>
+                <div class="campo"><label>Refeição</label>
+                  <select id="avulsoRefeicao">
+                    <option>Café da Manhã</option>
+                    <option>Almoço</option>
+                    <option>Jantar</option>
+                  </select>
+                </div>
+                <div class="campo"><label>Horário</label><input type="time" id="avulsoHorario" value="07:30"></div>
+              </div>
+              <button type="button" class="secondary small" onclick="adicionarItemAvulso()">+ Adicionar refeição avulsa</button>
+            </div>
+          </details>
 
           <div id="planoLista" class="plano-lista"></div>
           <div id="planoMsg"></div>
@@ -505,6 +563,43 @@ function hojeISO() {
 
 let pedidosPainelAtual = [];
 let painelSubview = 'pendentes';
+let painelFoco = true; // true = mostra só a refeição do horário atual (mais espaço); false = mostra os 3 serviços
+
+// ---------- Turno atual (Café 23h-10h / Almoço 10h-15h30 / Jantar 15h40-22h40) ----------
+const TURNOS_INFO = {
+  'Café da Manhã': { classe: 'cafe', faixa: '23h – 10h' },
+  'Almoço': { classe: 'almoco', faixa: '10h – 15h30' },
+  'Jantar': { classe: 'jantar', faixa: '15h40 – 22h40' }
+};
+
+function turnoAtual() {
+  const agora = new Date();
+  const m = agora.getHours() * 60 + agora.getMinutes();
+  const ALMOCO_INI = 10 * 60, ALMOCO_FIM = 15 * 60 + 30;
+  const JANTAR_INI = 15 * 60 + 40, JANTAR_FIM = 22 * 60 + 40;
+  if (m >= ALMOCO_INI && m < ALMOCO_FIM) return 'Almoço';
+  if (m >= JANTAR_INI && m < JANTAR_FIM) return 'Jantar';
+  return 'Café da Manhã'; // cobre 22h40–10h (inclui a virada da noite)
+}
+
+function atualizarTurnoBadge() {
+  const t = turnoAtual();
+  const info = TURNOS_INFO[t];
+  const el = document.getElementById('turnoBadge');
+  el.className = 'turno-badge tb-' + info.classe;
+  el.innerHTML = 'Agora: ' + escapeHtml(t) + ' <span class="faixa">(' + info.faixa + ')</span>';
+}
+
+function atualizarBtnFoco() {
+  const b = document.getElementById('btnPainelFoco');
+  b.textContent = painelFoco ? 'Ver todos os serviços' : '↩ Focar no horário atual';
+}
+
+function togglePainelFoco() {
+  painelFoco = !painelFoco;
+  atualizarBtnFoco();
+  renderPainel();
+}
 
 function setPainelSubview(v) {
   painelSubview = v;
@@ -528,7 +623,9 @@ async function carregarPainel() {
 
 function renderPainel() {
   const grid = document.getElementById('painelGrid');
-  grid.className = 'refeicoes-grid';
+  grid.className = 'refeicoes-grid' + (painelFoco ? ' foco' : '');
+  atualizarTurnoBadge();
+  atualizarBtnFoco();
   if (painelSubview === 'pendentes') renderPainelPendentes(grid);
   else renderPainelProntos(grid);
 }
@@ -583,9 +680,60 @@ function atributosVinculo(p, vinculos) {
   return cor ? ` vinculado" style="--cor-vinculo:${cor}` : '';
 }
 
+function renderPratoDestaque(prato) {
+  return `<div class="prato-destaque"><span class="pd-label">Prato</span><span class="pd-valor">${escapeHtml(prato)}</span></div>`;
+}
+
+function templateCardPendente(p, vinculos) {
+  return `
+    <div class="pedido-card${atributosVinculo(p, vinculos)}">
+      <div class="linha1">
+        <div class="nome">${escapeHtml(p.hospede)}</div>
+        ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
+      </div>
+      ${renderRestricaoAlerta(p.tipo_restricao)}
+      ${renderPratoDestaque(p.prato)}
+      <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+      ${renderVinculoRefeicoes(p, vinculos)}
+      <button class="status-btn pendente" onclick="togglePronto('${p.id}', true)">Marcar como pronto</button>
+    </div>`;
+}
+
+function templateCardPronto(p, vinculos) {
+  const info = statusEntregaInfo(p);
+  return `
+    <div class="pedido-card${atributosVinculo(p, vinculos)}">
+      <div class="linha1">
+        <div class="nome">${escapeHtml(p.hospede)}</div>
+        ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
+      </div>
+      <span class="tag">${escapeHtml(p.refeicao)}</span>
+      ${renderRestricaoAlerta(p.tipo_restricao)}
+      ${renderPratoDestaque(p.prato)}
+      <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+      ${renderVinculoRefeicoes(p, vinculos)}
+      <div><span class="status-badge ${info.classe}">${info.label}</span></div>
+      ${p.entregue !== 'Sim' ? `<button class="status-btn pronto" style="margin-top:8px;" onclick="togglePronto('${p.id}', false)">Desfazer (voltar para pendente)</button>` : ''}
+    </div>`;
+}
+
 function renderPainelPendentes(grid) {
   const vinculos = calcularVinculos(pedidosPainelAtual);
   const pendentes = pedidosPainelAtual.filter(p => p.status_pronto !== 'Sim');
+
+  if (painelFoco) {
+    const turno = turnoAtual();
+    const itens = pendentes.filter(p => p.refeicao === turno);
+    grid.innerHTML = `
+      <div class="foco-bloco">
+        <h3 class="foco-titulo ${TURNOS_INFO[turno].classe}">${escapeHtml(turno)} (${itens.length})</h3>
+        <div class="cards-foco-grid">
+          ${itens.length === 0 ? '<div class="empty">Nenhuma restrição pendente</div>' : itens.map(p => templateCardPendente(p, vinculos)).join('')}
+        </div>
+      </div>`;
+    return;
+  }
+
   const grupos = { 'Café da Manhã': { classe: 'cafe', itens: [] }, 'Almoço': { classe: 'almoco', itens: [] }, 'Jantar': { classe: 'jantar', itens: [] } };
   pendentes.forEach(p => { if (grupos[p.refeicao]) grupos[p.refeicao].itens.push(p); });
 
@@ -595,24 +743,9 @@ function renderPainelPendentes(grid) {
     const col = document.createElement('div');
     col.className = 'coluna-refeicao ' + g.classe;
     let html = '<h3>' + refeicao + ' (' + g.itens.length + ')</h3>';
-    if (g.itens.length === 0) {
-      html += '<div class="empty">Nenhuma restrição pendente</div>';
-    } else {
-      g.itens.forEach(p => {
-        html += `
-          <div class="pedido-card${atributosVinculo(p, vinculos)}">
-            <div class="linha1">
-              <div class="nome">${escapeHtml(p.hospede)}</div>
-              ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
-            </div>
-            ${renderRestricaoAlerta(p.tipo_restricao)}
-            <div class="prato">${escapeHtml(p.prato)}</div>
-            <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
-            ${renderVinculoRefeicoes(p, vinculos)}
-            <button class="status-btn pendente" onclick="togglePronto('${p.id}', true)">Marcar como pronto</button>
-          </div>`;
-      });
-    }
+    html += g.itens.length === 0
+      ? '<div class="empty">Nenhuma restrição pendente</div>'
+      : g.itens.map(p => templateCardPendente(p, vinculos)).join('');
     col.innerHTML = html;
     grid.appendChild(col);
   });
@@ -628,29 +761,28 @@ function statusEntregaInfo(p) {
 
 function renderPainelProntos(grid) {
   const vinculos = calcularVinculos(pedidosPainelAtual);
-  const prontos = pedidosPainelAtual.filter(p => p.status_pronto === 'Sim');
+  let prontos = pedidosPainelAtual.filter(p => p.status_pronto === 'Sim');
+
+  if (painelFoco) {
+    const turno = turnoAtual();
+    prontos = prontos.filter(p => p.refeicao === turno);
+    const ordenado = [...prontos].sort((a, b) => String(a.horario_entrega).localeCompare(String(b.horario_entrega)));
+    grid.innerHTML = `
+      <div class="foco-bloco">
+        <h3 class="foco-titulo ${TURNOS_INFO[turno].classe}">${escapeHtml(turno)} (${ordenado.length})</h3>
+        <div class="cards-foco-grid">
+          ${ordenado.length === 0 ? '<div class="empty">Nenhum pedido pronto ou entregue ainda neste turno.</div>' : ordenado.map(p => templateCardPronto(p, vinculos)).join('')}
+        </div>
+      </div>`;
+    return;
+  }
+
   if (prontos.length === 0) {
     grid.innerHTML = '<div class="empty">Nenhum pedido pronto ou entregue ainda hoje.</div>';
     return;
   }
   const ordenado = [...prontos].sort((a, b) => String(a.horario_entrega).localeCompare(String(b.horario_entrega)));
-  grid.innerHTML = ordenado.map(p => {
-    const info = statusEntregaInfo(p);
-    return `
-      <div class="pedido-card${atributosVinculo(p, vinculos)}">
-        <div class="linha1">
-          <div class="nome">${escapeHtml(p.hospede)}</div>
-          ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
-        </div>
-        <span class="tag">${escapeHtml(p.refeicao)}</span>
-        ${renderRestricaoAlerta(p.tipo_restricao)}
-        <div class="prato">${escapeHtml(p.prato)}</div>
-        <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
-        ${renderVinculoRefeicoes(p, vinculos)}
-        <div><span class="status-badge ${info.classe}">${info.label}</span></div>
-        ${p.entregue !== 'Sim' ? `<button class="status-btn pronto" style="margin-top:8px;" onclick="togglePronto('${p.id}', false)">Desfazer (voltar para pendente)</button>` : ''}
-      </div>`;
-  }).join('');
+  grid.innerHTML = ordenado.map(p => templateCardPronto(p, vinculos)).join('');
 }
 
 async function togglePronto(id, novoStatus) {
@@ -675,6 +807,7 @@ async function prepararSolicitar() {
     document.getElementById('avulsoData').value = hojeISO();
     planoInicializado = true;
   }
+  atualizarPreviewPlano();
 
   if (!metaCarregada) {
     try {
@@ -763,6 +896,27 @@ function mostrarPlanoMsg(texto) {
   planoMsgTimer = setTimeout(() => { el.style.opacity = '0'; }, 4000);
 }
 
+// Mostra, antes de clicar em "Adicionar", quantas refeições serão criadas —
+// evita a confusão de não saber o que vai acontecer ao clicar no botão.
+function atualizarPreviewPlano() {
+  const preview = document.getElementById('planoPreview');
+  if (!preview) return;
+  const dias = parseInt(document.getElementById('planoDias').value, 10) || 1;
+  const marcadas = [];
+  if (document.getElementById('chkCafe').checked) marcadas.push('Café da Manhã');
+  if (document.getElementById('chkAlmoco').checked) marcadas.push('Almoço');
+  if (document.getElementById('chkJantar').checked) marcadas.push('Jantar');
+
+  if (marcadas.length === 0) {
+    preview.className = 'plano-preview vazio';
+    preview.textContent = 'Marque ao menos uma refeição acima (Café, Almoço e/ou Jantar) para montar o plano.';
+    return;
+  }
+  const total = marcadas.length * dias;
+  preview.className = 'plano-preview';
+  preview.textContent = `✓ ${total} refeição(ões) será(ão) adicionada(s): ${marcadas.join(' + ')} — repetindo por ${dias} dia(s).`;
+}
+
 function adicionarVariosDiasPlano() {
   const dataInicio = document.getElementById('planoData').value;
   const dias = parseInt(document.getElementById('planoDias').value, 10) || 1;
@@ -790,6 +944,7 @@ function adicionarVariosDiasPlano() {
   document.getElementById('chkCafe').checked = false;
   document.getElementById('chkAlmoco').checked = false;
   document.getElementById('chkJantar').checked = false;
+  atualizarPreviewPlano();
 
   renderPlanoLista();
   let msg = adicionados > 0 ? `✓ ${adicionados} refeição(ões) adicionada(s) ao plano.` : '';
@@ -858,6 +1013,7 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
     renderPlanoLista();
     document.getElementById('planoData').value = hojeISO();
     document.getElementById('avulsoData').value = hojeISO();
+    atualizarPreviewPlano();
   } else {
     msg.style.color = 'var(--vermelho)';
     msg.textContent = r.error || 'Erro ao lançar pedido.';
@@ -1055,6 +1211,10 @@ if (params.get('tv') === '1') {
 atualizarUserArea();
 showView('painel');
 setInterval(() => refreshView(currentView), REFRESH_MS);
+// Reavalia o turno atual (café/almoço/jantar) a cada minuto e re-renderiza
+// o painel sem precisar buscar dados novos — assim ele troca sozinho de
+// serviço no horário certo, mesmo que ninguém clique em "Atualizar agora".
+setInterval(() => { if (currentView === 'painel') renderPainel(); }, 60 * 1000);
 </script>
 </body>
 </html>
