@@ -54,34 +54,68 @@
   .coluna-refeicao.cafe h3{background:var(--laranja);}
   .coluna-refeicao.almoco h3{background:var(--azul);}
   .coluna-refeicao.jantar h3{background:var(--verde-escuro);}
-  .pedido-card{background:var(--card);border:1px solid var(--borda);border-radius:8px;padding:12px;margin-bottom:10px;}
+  .pedido-card{background:var(--card);border:1px solid var(--borda);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:transform .2s ease, box-shadow .2s ease;animation:cardIn .35s ease backwards;position:relative;}
+  .pedido-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.10);}
+  @keyframes cardIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .pedido-card.vinculado{border-left:5px solid var(--cor-vinculo,#8e5fc0);}
   .pedido-card .linha1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
   .pedido-card .nome{font-weight:700;font-size:15px;}
   .pedido-card .apto{background:var(--verde-claro);color:var(--verde-escuro);padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap;}
   .pedido-card .tag{display:inline-block;background:#f0ede4;color:#6b5a2a;padding:2px 8px;border-radius:10px;font-size:11px;margin:6px 4px 0 0;}
   .pedido-card .prato{margin-top:6px;font-size:13px;color:var(--texto-suave);}
   .pedido-card .horario{font-size:12px;color:var(--texto-suave);margin-top:4px;}
+  .restricao-alerta{margin-top:8px;background:linear-gradient(100deg,#c0392b,#e74c3c);color:#fff;font-weight:800;font-size:13px;letter-spacing:.4px;padding:8px 10px;border-radius:8px;display:flex;align-items:flex-start;gap:8px;text-transform:uppercase;box-shadow:0 2px 8px rgba(192,57,43,.35);line-height:1.35;}
+  .restricao-alerta .icone{font-size:15px;flex-shrink:0;}
+  .vinculo-refeicoes{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:11px;color:var(--texto-suave);}
+  .vinculo-refeicoes .vinc-icone{font-weight:700;font-size:12px;}
+  .vinculo-refeicoes .chip{background:#f4f1fa;border:1px solid #ddd3ee;color:#5e3f8f;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap;}
   .status-btn{margin-top:10px;width:100%;padding:8px;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
   .status-btn.pendente{background:#fdecea;color:var(--vermelho);}
   .status-btn.pronto{background:#e6f4ee;color:var(--verde-escuro);}
   .empty{color:var(--texto-suave);font-size:13px;padding:16px;text-align:center;border:1px dashed var(--borda);border-radius:8px;}
-  form.card{background:var(--card);border:1px solid var(--borda);border-radius:10px;padding:20px;max-width:640px;}
+  form.card{background:var(--card);border:1px solid var(--borda);border-radius:14px;padding:24px;max-width:760px;box-shadow:0 4px 24px rgba(31,122,92,.08);animation:cardIn .4s ease;}
+  .form-secao{border:1px solid var(--borda);border-radius:10px;padding:16px;margin-bottom:18px;background:#fcfdfc;transition:border-color .25s ease, box-shadow .25s ease;animation:cardIn .4s ease backwards;}
+  .form-secao:nth-child(1){animation-delay:.05s;}
+  .form-secao:nth-child(2){animation-delay:.12s;}
+  .form-secao:nth-child(3){animation-delay:.19s;}
+  .form-secao:nth-child(4){animation-delay:.26s;}
+  .form-secao:focus-within{border-color:var(--verde);box-shadow:0 0 0 3px rgba(31,122,92,.10);}
+  .form-secao h4{margin:0 0 14px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--verde-escuro);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .form-secao h4 .num{background:linear-gradient(135deg,var(--verde),var(--verde-escuro));color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .form-secao.secao-restricao{border-left:4px solid var(--vermelho);background:#fffafa;}
+  .form-secao.secao-restricao:focus-within{border-color:var(--vermelho);box-shadow:0 0 0 3px rgba(192,57,43,.10);}
+  .form-secao.secao-restricao h4{color:var(--vermelho);}
+  .form-secao.secao-restricao h4 .num{background:linear-gradient(135deg,#c0392b,#e74c3c);}
+  .alerta-mini{font-size:11px;color:var(--vermelho);font-weight:700;text-transform:none;letter-spacing:0;background:#fdecea;padding:3px 9px;border-radius:10px;}
   .campo{margin-bottom:14px;}
   .campo label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;}
   .campo input[type=text], .campo input[type=date], .campo input[type=number], .campo select, .campo textarea{
     width:100%;padding:9px 10px;border:1px solid var(--borda);border-radius:6px;font-size:14px;font-family:inherit;
+    transition:border-color .2s ease, box-shadow .2s ease;
   }
+  .campo input:focus, .campo select:focus, .campo textarea:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 3px rgba(31,122,92,.12);}
   .campo textarea{min-height:60px;resize:vertical;}
-  .refeicao-check{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--borda);border-radius:6px;margin-bottom:8px;}
-  .refeicao-check input[type=checkbox]{width:18px;height:18px;}
+  .refeicao-check{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--borda);border-radius:6px;margin-bottom:8px;background:#fff;transition:background .2s ease, border-color .2s ease, transform .15s ease;cursor:pointer;}
+  .refeicao-check:hover{border-color:var(--verde);transform:translateX(2px);}
+  .refeicao-check:has(input:checked){background:var(--verde-claro);border-color:var(--verde);}
+  #tipoRestricaoLista .refeicao-check:hover{border-color:var(--vermelho);}
+  #tipoRestricaoLista .refeicao-check:has(input:checked){background:#fdecea;border-color:var(--vermelho);}
+  #tipoRestricaoLista .refeicao-check:has(input:checked) .rc-nome{color:var(--vermelho);font-weight:700;}
+  .refeicao-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--verde);}
+  #tipoRestricaoLista input[type=checkbox]{accent-color:var(--vermelho);}
   .refeicao-check .rc-nome{flex:1;font-size:14px;}
   .refeicao-check input[type=time]{width:110px;padding:6px;border:1px solid var(--borda);border-radius:5px;}
+  .btn-lancar{width:100%;padding:13px;font-size:15px;font-weight:700;border-radius:8px;background:linear-gradient(135deg,var(--verde),var(--verde-escuro));box-shadow:0 4px 14px rgba(31,122,92,.3);transition:transform .2s ease, box-shadow .2s ease;}
+  .btn-lancar:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(31,122,92,.4);}
+  .btn-lancar:active{transform:translateY(0);}
+  #planoMsg{font-size:12px;font-weight:600;color:var(--verde-escuro);margin-top:8px;min-height:16px;transition:opacity .4s ease;}
   .linha-dois{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .linha-tres{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
   .plano-box{border:1px solid var(--borda);border-radius:8px;padding:14px;background:#fafbfa;}
   .plano-avulso{border-top:1px dashed var(--borda);margin-top:14px;padding-top:6px;}
   .plano-lista{margin-top:12px;}
-  .plano-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--borda);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:13px;}
+  .plano-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--borda);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:13px;animation:cardIn .3s ease;transition:border-color .2s ease;}
+  .plano-item:hover{border-color:var(--verde);}
   .plano-item .info{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
   .plano-item .data-badge{background:var(--verde-claro);color:var(--verde-escuro);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;white-space:nowrap;}
   .plano-item button{background:none;border:none;color:var(--vermelho);cursor:pointer;font-size:17px;padding:0 4px;line-height:1;}
@@ -128,6 +162,8 @@
   body.modo-tv .status-btn{font-size:16px;padding:12px;}
   body.modo-tv .coluna-refeicao h3{font-size:20px;padding:12px 16px;}
   body.modo-tv .painel-subnav{display:none;}
+  body.modo-tv .restricao-alerta{font-size:17px;padding:10px 12px;}
+  body.modo-tv .vinculo-refeicoes{font-size:13px;}
 </style>
 </head>
 <body>
@@ -173,52 +209,60 @@
       Esta área é restrita à equipe de nutrição. Faça login para lançar um pedido.
     </div>
     <form class="card" id="formSolicitar" style="display:none;">
-      <div class="campo">
-        <label>Nutricionista responsável</label>
-        <input type="text" id="nutriResponsavel" disabled>
-      </div>
-      <div class="linha-dois">
+      <div class="form-secao">
+        <h4><span class="num">1</span>Dados do hóspede</h4>
         <div class="campo">
-          <label>Nome do hóspede *</label>
-          <input type="text" id="fHospede" required>
+          <label>Nutricionista responsável</label>
+          <input type="text" id="nutriResponsavel" disabled>
+        </div>
+        <div class="linha-dois">
+          <div class="campo">
+            <label>Nome do hóspede *</label>
+            <input type="text" id="fHospede" required>
+          </div>
+          <div class="campo">
+            <label>Apartamento (opcional)</label>
+            <input type="text" id="fApartamento">
+          </div>
+        </div>
+        <div class="linha-dois">
+          <div class="campo">
+            <label>Reserva (opcional)</label>
+            <input type="text" id="fReserva">
+          </div>
+          <div class="campo">
+            <label>Número de contato (opcional)</label>
+            <input type="text" id="fContato" placeholder="Ex: (61) 99999-9999">
+          </div>
         </div>
         <div class="campo">
-          <label>Apartamento (opcional)</label>
-          <input type="text" id="fApartamento">
+          <label>Origem do hóspede *</label>
+          <select id="fOrigem" required></select>
+        </div>
+        <div class="campo" id="campoOutraOrigem" style="display:none;">
+          <label>Qual origem? *</label>
+          <input type="text" id="fOrigemOutro">
         </div>
       </div>
-      <div class="linha-dois">
+
+      <div class="form-secao secao-restricao">
+        <h4><span class="num">2</span>Restrição alimentar <span class="alerta-mini">⚠️ Risco à vida — confira com atenção</span></h4>
         <div class="campo">
-          <label>Reserva (opcional)</label>
-          <input type="text" id="fReserva">
+          <label>Tipo(s) de restrição * <span class="muted">(pode marcar mais de um)</span></label>
+          <div id="tipoRestricaoLista"></div>
         </div>
-        <div class="campo">
-          <label>Número de contato (opcional)</label>
-          <input type="text" id="fContato" placeholder="Ex: (61) 99999-9999">
+        <div class="campo" id="campoOutraRestricao" style="display:none;">
+          <label>Qual restrição (Outro)? *</label>
+          <input type="text" id="fTipoRestricaoOutro">
+        </div>
+        <div class="campo" style="margin-bottom:0;">
+          <label>Prato solicitado pela nutrição *</label>
+          <input type="text" id="fPrato" required>
         </div>
       </div>
-      <div class="campo">
-        <label>Origem do hóspede *</label>
-        <select id="fOrigem" required></select>
-      </div>
-      <div class="campo" id="campoOutraOrigem" style="display:none;">
-        <label>Qual origem? *</label>
-        <input type="text" id="fOrigemOutro">
-      </div>
-      <div class="campo">
-        <label>Tipo(s) de restrição * <span class="muted">(pode marcar mais de um)</span></label>
-        <div id="tipoRestricaoLista"></div>
-      </div>
-      <div class="campo" id="campoOutraRestricao" style="display:none;">
-        <label>Qual restrição (Outro)? *</label>
-        <input type="text" id="fTipoRestricaoOutro">
-      </div>
-      <div class="campo">
-        <label>Prato solicitado pela nutrição *</label>
-        <input type="text" id="fPrato" required>
-      </div>
-      <div class="campo">
-        <label>Plano de refeições *</label>
+
+      <div class="form-secao">
+        <h4><span class="num">3</span>Plano de refeições</h4>
         <div class="plano-box">
           <div class="muted" style="margin-bottom:10px;">Se o hóspede já informou toda a estadia, monte o plano completo aqui — dias e refeições diferentes podem ser combinados antes de lançar tudo de uma vez.</div>
           <div class="linha-dois">
@@ -226,7 +270,7 @@
             <div class="campo"><label>Repetir por quantos dias?</label><input type="number" id="planoDias" min="1" value="1"></div>
           </div>
           <div class="refeicao-check">
-            <input type="checkbox" id="chkCafe" checked>
+            <input type="checkbox" id="chkCafe">
             <div class="rc-nome">Café da Manhã</div>
             <input type="time" id="hCafe" value="07:30">
           </div>
@@ -259,15 +303,20 @@
           </div>
 
           <div id="planoLista" class="plano-lista"></div>
+          <div id="planoMsg"></div>
           <div id="planoVazio" class="muted" style="margin-top:8px;">Nenhuma refeição adicionada ainda.</div>
         </div>
       </div>
-      <div class="campo">
-        <label>Observações</label>
-        <textarea id="fObservacoes"></textarea>
+
+      <div class="form-secao">
+        <h4><span class="num">4</span>Finalizar</h4>
+        <div class="campo">
+          <label>Observações</label>
+          <textarea id="fObservacoes"></textarea>
+        </div>
+        <div id="msgSolicitar" class="erro"></div>
+        <button type="submit" class="primary btn-lancar">Lançar pedido</button>
       </div>
-      <div id="msgSolicitar" class="erro"></div>
-      <button type="submit" class="primary">Lançar pedido</button>
     </form>
   </section>
 
@@ -484,7 +533,58 @@ function renderPainel() {
   else renderPainelProntos(grid);
 }
 
+// --- Vínculo visual entre cards do mesmo hóspede no mesmo dia ---
+const CORES_VINCULO = ['#8e5fc0', '#2c9aa6', '#c26a1f', '#a04d8e', '#5b8a2c', '#2c5f8a', '#b3541e'];
+
+function chaveHospede(p) {
+  return String(p.hospede || '').trim().toLowerCase() + '|' + String(p.apartamento || '').trim();
+}
+
+// Agrupa TODOS os pedidos do dia por hóspede (independente do status),
+// para o vínculo aparecer tanto em Pendentes quanto em Prontos.
+function calcularVinculos(pedidos) {
+  const porHospede = {};
+  pedidos.forEach(p => {
+    const k = chaveHospede(p);
+    (porHospede[k] = porHospede[k] || []).push(p);
+  });
+  const cores = {};
+  let ci = 0;
+  Object.keys(porHospede).sort().forEach(k => {
+    if (porHospede[k].length > 1) cores[k] = CORES_VINCULO[ci++ % CORES_VINCULO.length];
+  });
+  return { porHospede, cores };
+}
+
+function renderRestricaoAlerta(tipo) {
+  const partes = String(tipo || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (partes.length === 0) return '';
+  return `<div class="restricao-alerta"><span class="icone">⚠️</span><span>${partes.map(escapeHtml).join(' + ')}</span></div>`;
+}
+
+function renderVinculoRefeicoes(p, vinculos) {
+  const k = chaveHospede(p);
+  const cor = vinculos.cores[k];
+  if (!cor) return '';
+  const ordem = { 'Café da Manhã': 0, 'Almoço': 1, 'Jantar': 2 };
+  const irmaos = vinculos.porHospede[k]
+    .filter(x => String(x.id) !== String(p.id))
+    .sort((a, b) => (ordem[a.refeicao] ?? 9) - (ordem[b.refeicao] ?? 9));
+  if (irmaos.length === 0) return '';
+  return `<div class="vinculo-refeicoes">
+    <span class="vinc-icone" style="color:${cor};">🔗</span>
+    <span>Mesmo hóspede:</span>
+    ${irmaos.map(x => `<span class="chip" style="border-color:${cor};color:${cor};">${escapeHtml(x.refeicao)} ${escapeHtml(x.horario_entrega || '')}</span>`).join('')}
+  </div>`;
+}
+
+function atributosVinculo(p, vinculos) {
+  const cor = vinculos.cores[chaveHospede(p)];
+  return cor ? ` vinculado" style="--cor-vinculo:${cor}` : '';
+}
+
 function renderPainelPendentes(grid) {
+  const vinculos = calcularVinculos(pedidosPainelAtual);
   const pendentes = pedidosPainelAtual.filter(p => p.status_pronto !== 'Sim');
   const grupos = { 'Café da Manhã': { classe: 'cafe', itens: [] }, 'Almoço': { classe: 'almoco', itens: [] }, 'Jantar': { classe: 'jantar', itens: [] } };
   pendentes.forEach(p => { if (grupos[p.refeicao]) grupos[p.refeicao].itens.push(p); });
@@ -500,14 +600,15 @@ function renderPainelPendentes(grid) {
     } else {
       g.itens.forEach(p => {
         html += `
-          <div class="pedido-card">
+          <div class="pedido-card${atributosVinculo(p, vinculos)}">
             <div class="linha1">
               <div class="nome">${escapeHtml(p.hospede)}</div>
               ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
             </div>
-            <span class="tag">${escapeHtml(p.tipo_restricao)}</span>
+            ${renderRestricaoAlerta(p.tipo_restricao)}
             <div class="prato">${escapeHtml(p.prato)}</div>
             <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+            ${renderVinculoRefeicoes(p, vinculos)}
             <button class="status-btn pendente" onclick="togglePronto('${p.id}', true)">Marcar como pronto</button>
           </div>`;
       });
@@ -526,6 +627,7 @@ function statusEntregaInfo(p) {
 }
 
 function renderPainelProntos(grid) {
+  const vinculos = calcularVinculos(pedidosPainelAtual);
   const prontos = pedidosPainelAtual.filter(p => p.status_pronto === 'Sim');
   if (prontos.length === 0) {
     grid.innerHTML = '<div class="empty">Nenhum pedido pronto ou entregue ainda hoje.</div>';
@@ -535,15 +637,16 @@ function renderPainelProntos(grid) {
   grid.innerHTML = ordenado.map(p => {
     const info = statusEntregaInfo(p);
     return `
-      <div class="pedido-card">
+      <div class="pedido-card${atributosVinculo(p, vinculos)}">
         <div class="linha1">
           <div class="nome">${escapeHtml(p.hospede)}</div>
           ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
         </div>
         <span class="tag">${escapeHtml(p.refeicao)}</span>
-        <span class="tag">${escapeHtml(p.tipo_restricao)}</span>
+        ${renderRestricaoAlerta(p.tipo_restricao)}
         <div class="prato">${escapeHtml(p.prato)}</div>
         <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+        ${renderVinculoRefeicoes(p, vinculos)}
         <div><span class="status-badge ${info.classe}">${info.label}</span></div>
         ${p.entregue !== 'Sim' ? `<button class="status-btn pronto" style="margin-top:8px;" onclick="togglePronto('${p.id}', false)">Desfazer (voltar para pendente)</button>` : ''}
       </div>`;
@@ -639,6 +742,27 @@ function renderPlanoLista() {
     </div>`).join('');
 }
 
+// Evita itens duplicados: se a mesma data+refeição já está no plano,
+// apenas atualiza o horário em vez de criar linha repetida.
+function inserirNoPlano(data, refeicao, horario) {
+  const i = planoRefeicoes.findIndex(it => it.data === data && it.refeicao === refeicao);
+  if (i >= 0) {
+    planoRefeicoes[i].horario = horario;
+    return 'atualizado';
+  }
+  planoRefeicoes.push({ data, refeicao, horario });
+  return 'adicionado';
+}
+
+let planoMsgTimer = null;
+function mostrarPlanoMsg(texto) {
+  const el = document.getElementById('planoMsg');
+  el.textContent = texto;
+  el.style.opacity = '1';
+  clearTimeout(planoMsgTimer);
+  planoMsgTimer = setTimeout(() => { el.style.opacity = '0'; }, 4000);
+}
+
 function adicionarVariosDiasPlano() {
   const dataInicio = document.getElementById('planoData').value;
   const dias = parseInt(document.getElementById('planoDias').value, 10) || 1;
@@ -650,14 +774,27 @@ function adicionarVariosDiasPlano() {
   if (document.getElementById('chkJantar').checked) refs.push(['Jantar', document.getElementById('hJantar').value]);
   if (refs.length === 0) { alert('Marque ao menos uma refeição para adicionar.'); return; }
 
+  let adicionados = 0, atualizados = 0;
   const base = new Date(dataInicio + 'T00:00:00');
   for (let n = 0; n < dias; n++) {
     const d = new Date(base.getTime());
     d.setDate(d.getDate() + n);
     const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    refs.forEach(([refeicao, horario]) => planoRefeicoes.push({ data: iso, refeicao, horario }));
+    refs.forEach(([refeicao, horario]) => {
+      inserirNoPlano(iso, refeicao, horario) === 'adicionado' ? adicionados++ : atualizados++;
+    });
   }
+
+  // Desmarca as refeições após adicionar — evita que o próximo clique
+  // duplique o que já foi lançado (ex: café entrando de novo junto com o almoço).
+  document.getElementById('chkCafe').checked = false;
+  document.getElementById('chkAlmoco').checked = false;
+  document.getElementById('chkJantar').checked = false;
+
   renderPlanoLista();
+  let msg = adicionados > 0 ? `✓ ${adicionados} refeição(ões) adicionada(s) ao plano.` : '';
+  if (atualizados > 0) msg += ` ${atualizados} já existia(m) — apenas o horário foi atualizado.`;
+  mostrarPlanoMsg(msg.trim());
 }
 
 function adicionarItemAvulso() {
@@ -665,8 +802,11 @@ function adicionarItemAvulso() {
   const refeicao = document.getElementById('avulsoRefeicao').value;
   const horario = document.getElementById('avulsoHorario').value;
   if (!data) { alert('Informe a data da refeição avulsa.'); return; }
-  planoRefeicoes.push({ data, refeicao, horario });
+  const resultado = inserirNoPlano(data, refeicao, horario);
   renderPlanoLista();
+  mostrarPlanoMsg(resultado === 'adicionado'
+    ? `✓ ${refeicao} de ${formatDataBR(data)} adicionada ao plano.`
+    : `${refeicao} de ${formatDataBR(data)} já estava no plano — horário atualizado.`);
 }
 
 function removerItemPlano(i) {
