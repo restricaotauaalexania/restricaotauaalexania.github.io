@@ -79,6 +79,20 @@
   .prato-destaque{margin-top:8px;background:#eef6f2;border:1px solid #cfe6db;border-radius:8px;padding:9px 11px;}
   .prato-destaque .pd-label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--verde-escuro);margin-bottom:2px;}
   .prato-destaque .pd-valor{font-size:16px;font-weight:700;color:var(--texto);line-height:1.3;}
+  .prato-icones{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 6px;}
+  .prato-icones .ic{display:inline-block;font-size:24px;line-height:1;animation:iconPop .45s cubic-bezier(.34,1.56,.64,1) backwards;transition:transform .18s ease;cursor:default;}
+  .prato-icones .ic:hover{transform:scale(1.35) rotate(-8deg);}
+  .prato-icones .ic:nth-child(1){animation-delay:.05s;}
+  .prato-icones .ic:nth-child(2){animation-delay:.12s;}
+  .prato-icones .ic:nth-child(3){animation-delay:.19s;}
+  .prato-icones .ic:nth-child(4){animation-delay:.26s;}
+  .prato-icones .ic:nth-child(5){animation-delay:.33s;}
+  .prato-icones .ic:nth-child(6){animation-delay:.40s;}
+  .prato-icones .ic:nth-child(7){animation-delay:.47s;}
+  .prato-icones .ic:nth-child(8){animation-delay:.54s;}
+  @keyframes iconPop{from{opacity:0;transform:scale(.2) rotate(-20deg);}60%{transform:scale(1.15);}to{opacity:1;transform:scale(1) rotate(0);}}
+  .prato-destaque .pd-valor b.kw{color:var(--vermelho);}
+  .restricao-alerta .ric{font-style:normal;margin-right:3px;}
   .foco-bloco{grid-column:1 / -1;}
   .foco-titulo{margin:0 0 14px;padding:10px 16px;border-radius:8px;color:#fff;font-size:17px;font-weight:700;}
   .foco-titulo.cafe{background:var(--laranja);}
@@ -88,6 +102,7 @@
   .refeicoes-grid.foco{display:block;}
   body.modo-tv .foco-titulo{font-size:22px;padding:14px 18px;}
   body.modo-tv .prato-destaque .pd-valor{font-size:20px;}
+  body.modo-tv .prato-icones .ic{font-size:32px;}
   .status-btn{margin-top:10px;width:100%;padding:8px;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
   .status-btn.pendente{background:#fdecea;color:var(--vermelho);}
   .status-btn.pronto{background:#e6f4ee;color:var(--verde-escuro);}
@@ -653,10 +668,71 @@ function calcularVinculos(pedidos) {
   return { porHospede, cores };
 }
 
+// --- Ícones automáticos: detecta ingredientes no texto do prato ---
+// (chave = palavra normalizada sem acento; valor = emoji)
+const ICONES_PRATO = [
+  ['tapioca', '🥞'], ['panqueca', '🥞'], ['crepioca', '🥞'], ['crepe', '🥞'],
+  ['cuscuz', '🌽'], ['milho', '🌽'],
+  ['ovo', '🍳'], ['omelete', '🍳'], ['mexido', '🍳'],
+  ['bolo', '🍰'], ['torta', '🍰'], ['biscoito', '🍪'], ['cookie', '🍪'],
+  ['fruta', '🍓'], ['morango', '🍓'], ['melao', '🍈'], ['mamao', '🥭'], ['manga', '🥭'],
+  ['pessego', '🍑'], ['banana', '🍌'], ['maca', '🍎'], ['abacaxi', '🍍'], ['uva', '🍇'],
+  ['melancia', '🍉'], ['laranja', '🍊'], ['limao', '🍋'], ['abacate', '🥑'], ['coco', '🥥'],
+  ['pao', '🍞'], ['torrada', '🍞'], ['queijo', '🧀'], ['sanduiche', '🥪'],
+  ['frango', '🍗'], ['carne', '🥩'], ['bife', '🥩'], ['file', '🥩'], ['porco', '🥩'],
+  ['peixe', '🐟'], ['tilapia', '🐟'], ['salmao', '🐟'], ['camarao', '🍤'],
+  ['arroz', '🍚'], ['risoto', '🍚'], ['feijao', '🫘'], ['lentilha', '🫘'],
+  ['macarrao', '🍝'], ['massa', '🍝'], ['espaguete', '🍝'], ['lasanha', '🍝'], ['nhoque', '🍝'],
+  ['salada', '🥗'], ['legume', '🥕'], ['cenoura', '🥕'], ['batata', '🥔'], ['mandioca', '🥔'],
+  ['aipim', '🥔'], ['inhame', '🥔'], ['abobora', '🎃'], ['brocolis', '🥦'], ['tomate', '🍅'],
+  ['sopa', '🍲'], ['caldo', '🍲'], ['ensopado', '🍲'],
+  ['suco', '🥤'], ['vitamina', '🥤'], ['agua de coco', '🥥'],
+  ['leite', '🥛'], ['iogurte', '🥛'], ['cafe', '☕'], ['cha ', '🍵'],
+  ['mel', '🍯'], ['aveia', '🌾'], ['granola', '🌾'], ['acai', '🍧'], ['sorvete', '🍦'],
+  ['azeite', '🫒'], ['castanha', '🥜'], ['amendoim', '🥜'], ['tapenade', '🫒']
+];
+
+function normalizarTexto_(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function iconesDoPrato(texto) {
+  // Remove ingredientes NEGADOS ("sem leite", "s/ gluten", "sem castanhas")
+  // para não mostrar o ícone de algo que o prato justamente NÃO leva.
+  let t = ' ' + normalizarTexto_(texto) + ' ';
+  t = t.replace(/(\bsem\s+|\bs\/\s*)([a-z]+)/g, ' ');
+  const achados = [];
+  ICONES_PRATO.forEach(([palavra, emoji]) => {
+    if (t.includes(palavra) && !achados.includes(emoji)) achados.push(emoji);
+  });
+  return achados.slice(0, 8);
+}
+
+// Destaca em vermelho as palavras críticas do preparo (SEM, SOMENTE, s/ ...)
+function destacarPalavrasCriticas(textoEscapado) {
+  return textoEscapado.replace(/(\bSEM\b|\bSOMENTE\b|\bs\/\s?\w+|\bNAO\b|\bNÃO\b)/gi, '<b class="kw">$1</b>');
+}
+
+// --- Ícone específico por tipo de restrição ---
+function iconeRestricao(parte) {
+  const t = normalizarTexto_(parte);
+  if (t.includes('gluten') || t.includes('celiac')) return '🌾';
+  if (t.includes('lactose') || t.includes('leite')) return '🥛';
+  if (t.includes('vegano')) return '🌱';
+  if (t.includes('vegetari')) return '🥬';
+  if (t.includes('diabet')) return '🍬';
+  if (t.includes('frutos do mar') || t.includes('camarao') || t.includes('marisco')) return '🦐';
+  if (t.includes('castanha') || t.includes('oleaginosa') || t.includes('amendoim') || t.includes('nozes')) return '🥜';
+  if (t.includes('sodio') || t.includes('hipertens')) return '🧂';
+  if (t.includes('introducao')) return '🍼';
+  return '⚠️';
+}
+
 function renderRestricaoAlerta(tipo) {
   const partes = String(tipo || '').split(',').map(s => s.trim()).filter(Boolean);
   if (partes.length === 0) return '';
-  return `<div class="restricao-alerta"><span class="icone">⚠️</span><span>${partes.map(escapeHtml).join(' + ')}</span></div>`;
+  const html = partes.map(p => `<i class="ric">${iconeRestricao(p)}</i>${escapeHtml(p)}`).join(' + ');
+  return `<div class="restricao-alerta"><span class="icone">⚠️</span><span>${html}</span></div>`;
 }
 
 function renderVinculoRefeicoes(p, vinculos) {
@@ -681,7 +757,11 @@ function atributosVinculo(p, vinculos) {
 }
 
 function renderPratoDestaque(prato) {
-  return `<div class="prato-destaque"><span class="pd-label">Prato</span><span class="pd-valor">${escapeHtml(prato)}</span></div>`;
+  const icones = iconesDoPrato(prato);
+  const linhaIcones = icones.length
+    ? `<div class="prato-icones">${icones.map(e => `<span class="ic">${e}</span>`).join('')}</div>`
+    : '';
+  return `<div class="prato-destaque"><span class="pd-label">Prato</span>${linhaIcones}<span class="pd-valor">${destacarPalavrasCriticas(escapeHtml(prato))}</span></div>`;
 }
 
 function templateCardPendente(p, vinculos) {
