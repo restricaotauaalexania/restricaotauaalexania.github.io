@@ -218,6 +218,7 @@
   .status-badge.entregue{background:var(--verde-claro);color:var(--verde-escuro);}
   .status-badge.aguardando{background:#fff3e0;color:#c26a1f;}
   .status-badge.atrasado{background:#fdecea;color:var(--vermelho);}
+  .atraso-tag{display:inline-flex;align-items:center;gap:4px;background:#fdecea;color:var(--vermelho);font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;margin-top:6px;}
   table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--borda);border-radius:8px;overflow:hidden;}
   table th, table td{padding:10px;border-bottom:1px solid var(--borda);font-size:13px;text-align:left;vertical-align:top;}
   table th{background:#f0f3f1;font-weight:600;}
@@ -225,6 +226,33 @@
   .pill{padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600;}
   .pill.sim{background:var(--verde-claro);color:var(--verde-escuro);}
   .pill.nao{background:#fdecea;color:var(--vermelho);}
+
+  /* ---- Ponto da carne (chips de seleção rápida em Observações) ---- */
+  .ponto-carne{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 12px;}
+  .chip-ponto{border:1.5px solid var(--borda);background:#fff;color:var(--texto);padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s ease;}
+  .chip-ponto:hover{border-color:var(--laranja);}
+  .chip-ponto.ativo{background:linear-gradient(135deg,var(--laranja),#c26a1f);color:#fff;border-color:var(--laranja);box-shadow:0 3px 10px rgba(217,123,41,.3);}
+
+  /* ---- Observações em destaque no card da cozinha ---- */
+  .obs-badge{margin-top:8px;background:#fff8ec;border:1px solid #f0d9a8;border-radius:8px;padding:7px 10px;font-size:12.5px;color:#7a5a10;display:flex;align-items:flex-start;gap:6px;}
+  .obs-badge .oi{flex-shrink:0;}
+
+  /* ---- Tabela de Gerenciar Entregas: versão mais visual ---- */
+  .entregas-lista{display:flex;flex-direction:column;gap:10px;}
+  .entrega-row{background:#fff;border:1px solid var(--borda);border-left:5px solid var(--laranja);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:1.4fr 1fr 1.6fr auto;gap:14px;align-items:center;transition:box-shadow .2s ease, border-color .2s ease;animation:cardIn .3s ease backwards;}
+  .entrega-row:hover{box-shadow:0 4px 14px rgba(0,0,0,.08);}
+  .entrega-row.entregue{border-left-color:var(--verde);}
+  .entrega-row .er-hospede{font-weight:700;font-size:14.5px;}
+  .entrega-row .er-meta{font-size:12px;color:var(--texto-suave);margin-top:2px;}
+  .entrega-row .er-restricao{font-size:12px;color:var(--vermelho);font-weight:700;margin-top:4px;}
+  .entrega-row .er-prato{font-size:13px;color:var(--texto);}
+  .entrega-row .er-status{display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
+  .entrega-status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:12px;font-size:12px;font-weight:700;}
+  .entrega-status-pill.entregue{background:var(--verde-claro);color:var(--verde-escuro);}
+  .entrega-status-pill.pendente{background:#fdecea;color:var(--vermelho);}
+  .entrega-row .er-acoes{display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:120px;}
+  .entrega-row .er-acoes button{white-space:nowrap;}
+  @media (max-width:900px){.entrega-row{grid-template-columns:1fr;}}
   .filtros{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px;}
   .filtros .campo{margin-bottom:0;}
   .login-box{max-width:360px;margin:60px auto;background:#fff;border:1px solid var(--borda);border-radius:10px;padding:26px;}
@@ -293,7 +321,7 @@
     </div>
     <div class="painel-subnav" id="painelSubnav">
       <button data-sub="pendentes" class="active" onclick="setPainelSubview('pendentes')">Pendentes</button>
-      <button data-sub="prontos" onclick="setPainelSubview('prontos')">Prontos / Entregues do dia</button>
+      <button data-sub="prontos" onclick="setPainelSubview('prontos')">Entregues do dia</button>
     </div>
     <div class="visual-toggle">
       <span class="vt-label">Ver como:</span>
@@ -406,6 +434,14 @@
 
       <div class="form-secao">
         <h4><span class="num">4</span>Finalizar</h4>
+        <div class="campo">
+          <label>Ponto da carne <span class="muted">(se aplicável — clique para marcar, some direto na observação)</span></label>
+          <div class="ponto-carne" id="pontoCarneChips">
+            <button type="button" class="chip-ponto" data-ponto="Carne mal passada" onclick="alternarPontoCarne(this)">🥩 Mal passada</button>
+            <button type="button" class="chip-ponto" data-ponto="Carne ao ponto" onclick="alternarPontoCarne(this)">🥩 Ao ponto</button>
+            <button type="button" class="chip-ponto" data-ponto="Carne bem passada" onclick="alternarPontoCarne(this)">🥩 Bem passada</button>
+          </div>
+        </div>
         <div class="campo">
           <label>Observações</label>
           <textarea id="fObservacoes"></textarea>
@@ -695,7 +731,7 @@ function renderMosaico(lista, tipo, vinculos) {
     String(a.apartamento || 'zzz').localeCompare(String(b.apartamento || 'zzz'), 'pt-BR', { numeric: true }));
   let html = '<div class="mosaico-grid">' + ordenado.map(p => {
     const temRest = !!(p.tipo_restricao && String(p.tipo_restricao).trim());
-    const statusClasse = tipo === 'pronto' ? (p.entregue === 'Sim' ? 'entregue' : 'pronto') : 'pendente';
+    const statusClasse = p.entregue === 'Sim' ? 'entregue' : 'pendente';
     const sel = mosaicoAberto === String(p.id) ? ' selecionada' : '';
     return `<div class="mosaico-tile ${statusClasse}${sel}" title="${escapeHtml(p.hospede)} — ${escapeHtml(p.refeicao)}" onclick="toggleMosaicoDetalhe('${p.id}')">
       ${temRest ? '<span class="rest-dot">⚠️</span>' : ''}
@@ -706,14 +742,13 @@ function renderMosaico(lista, tipo, vinculos) {
   }).join('') + '</div>';
   html += `<div class="mosaico-legenda">
     <span><span class="dot" style="background:var(--laranja);"></span>Pendente</span>
-    <span><span class="dot" style="background:var(--verde-escuro);"></span>Pronto</span>
-    <span><span class="dot" style="background:#8fa89a;"></span>Entregue</span>
+    <span><span class="dot" style="background:var(--verde-escuro);"></span>Entregue</span>
     <span>⚠️ = tem restrição · clique num quadrado para ver os detalhes</span>
   </div>`;
   if (mosaicoAberto) {
     const p = ordenado.find(x => String(x.id) === mosaicoAberto);
     if (p) {
-      html += `<div class="mosaico-detalhe">${tipo === 'pronto' ? templateCardPronto(p, vinculos) : templateCardPendente(p, vinculos)}</div>`;
+      html += `<div class="mosaico-detalhe">${p.entregue === 'Sim' ? templateCardPronto(p, vinculos) : templateCardPendente(p, vinculos)}</div>`;
     }
   }
   return html;
@@ -725,7 +760,7 @@ function renderTabelaPainel(lista, tipo) {
   return `<div class="tabela-painel-wrap"><table class="tabela-painel"><thead><tr>
     <th>Apto</th><th>Hóspede</th><th>Refeição</th><th>Restrição</th><th>Prato</th><th>Horário</th><th>Status</th>
   </tr></thead><tbody>` + ordenado.map(p => {
-    const status = tipo === 'pronto' ? (p.entregue === 'Sim' ? '✓ Entregue' : 'Pronto') : '🟠 Pendente';
+    const status = p.entregue === 'Sim' ? '✓ Entregue às ' + escapeHtml(p.horario_entrega || '—') : '🟠 Pendente';
     return `<tr>
       <td><b>${escapeHtml(p.apartamento || '—')}</b></td>
       <td>${escapeHtml(p.hospede)}</td>
@@ -888,6 +923,24 @@ function renderPratoDestaque(prato) {
   return `<div class="prato-destaque"><span class="pd-label">Prato</span>${linhaIcones}<span class="pd-valor">${destacarPalavrasCriticas(escapeHtml(prato))}</span></div>`;
 }
 
+// Mostra as observações no card sempre que houver algo escrito (ex: ponto da
+// carne) — informação operacional que a cozinha precisa ver, não só a nutrição.
+function renderObsBadge(observacoes) {
+  const texto = String(observacoes || '').trim();
+  if (!texto) return '';
+  return `<div class="obs-badge"><span class="oi">📝</span><span>${escapeHtml(texto).replace(/\n/g, '<br>')}</span></div>`;
+}
+
+// Sinaliza em vermelho quando o horário planejado já passou e o pedido
+// ainda está pendente (ainda não foi marcado como entregue).
+function renderAtrasoTag(p) {
+  if (!p.horario_entrega) return '';
+  const agora = new Date();
+  const hhmm = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+  if (hhmm > p.horario_entrega) return `<span class="atraso-tag">⏰ Atrasado</span>`;
+  return '';
+}
+
 function templateCardPendente(p, vinculos) {
   return `
     <div class="pedido-card${atributosVinculo(p, vinculos)}">
@@ -897,14 +950,15 @@ function templateCardPendente(p, vinculos) {
       </div>
       ${renderRestricaoAlerta(p.tipo_restricao)}
       ${renderPratoDestaque(p.prato)}
-      <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+      ${renderObsBadge(p.observacoes)}
+      <div class="horario">Entrega prevista: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+      ${renderAtrasoTag(p)}
       ${renderVinculoRefeicoes(p, vinculos)}
-      <button class="status-btn pendente" onclick="togglePronto('${p.id}', true)">Marcar como pronto</button>
+      <button class="status-btn pendente" onclick="marcarEntregue('${p.id}')">✓ Marcar como entregue</button>
     </div>`;
 }
 
 function templateCardPronto(p, vinculos) {
-  const info = statusEntregaInfo(p);
   return `
     <div class="pedido-card${atributosVinculo(p, vinculos)}">
       <div class="linha1">
@@ -914,16 +968,17 @@ function templateCardPronto(p, vinculos) {
       <span class="tag">${escapeHtml(p.refeicao)}</span>
       ${renderRestricaoAlerta(p.tipo_restricao)}
       ${renderPratoDestaque(p.prato)}
-      <div class="horario">Entrega: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
+      ${renderObsBadge(p.observacoes)}
+      <div class="horario">Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
       ${renderVinculoRefeicoes(p, vinculos)}
-      <div><span class="status-badge ${info.classe}">${info.label}</span></div>
-      ${p.entregue !== 'Sim' ? `<button class="status-btn pronto" style="margin-top:8px;" onclick="togglePronto('${p.id}', false)">Desfazer (voltar para pendente)</button>` : ''}
+      <div><span class="status-badge entregue">✓ Entregue às ${escapeHtml(p.horario_entrega || '—')}</span></div>
+      <button class="status-btn pronto" style="margin-top:8px;" onclick="desfazerEntrega('${p.id}')">↩ Desfazer entrega</button>
     </div>`;
 }
 
 function renderPainelPendentes(grid) {
   const vinculos = calcularVinculos(pedidosPainelAtual);
-  const pendentes = pedidosPainelAtual.filter(p => p.status_pronto !== 'Sim');
+  const pendentes = pedidosPainelAtual.filter(p => p.entregue !== 'Sim');
 
   if (painelVisual === 'mosaico') { grid.innerHTML = renderMosaico(pendentes, 'pendente', vinculos); return; }
   if (painelVisual === 'tabela') { grid.innerHTML = renderTabelaPainel(pendentes, 'pendente'); return; }
@@ -959,45 +1014,47 @@ function renderPainelPendentes(grid) {
   });
 }
 
-function statusEntregaInfo(p) {
-  if (p.entregue === 'Sim') return { classe: 'entregue', label: '✓ Entregue' };
-  const agora = new Date();
-  const hhmm = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
-  if (p.horario_entrega && hhmm > p.horario_entrega) return { classe: 'atrasado', label: 'Atrasado' };
-  return { classe: 'aguardando', label: 'Pronto (aguardando retirada)' };
-}
-
 function renderPainelProntos(grid) {
   const vinculos = calcularVinculos(pedidosPainelAtual);
-  let prontos = pedidosPainelAtual.filter(p => p.status_pronto === 'Sim');
+  let entregues = pedidosPainelAtual.filter(p => p.entregue === 'Sim');
 
-  if (painelVisual === 'mosaico') { grid.innerHTML = renderMosaico(prontos, 'pronto', vinculos); return; }
-  if (painelVisual === 'tabela') { grid.innerHTML = renderTabelaPainel(prontos, 'pronto'); return; }
+  if (painelVisual === 'mosaico') { grid.innerHTML = renderMosaico(entregues, 'entregue', vinculos); return; }
+  if (painelVisual === 'tabela') { grid.innerHTML = renderTabelaPainel(entregues, 'entregue'); return; }
 
   if (painelFoco) {
     const turno = turnoAtual();
-    prontos = prontos.filter(p => p.refeicao === turno);
-    const ordenado = [...prontos].sort((a, b) => String(a.horario_entrega).localeCompare(String(b.horario_entrega)));
+    entregues = entregues.filter(p => p.refeicao === turno);
+    // Mais recém-entregue primeiro — é o que a cozinha quer ver no topo.
+    const ordenado = [...entregues].sort((a, b) => String(b.horario_entrega).localeCompare(String(a.horario_entrega)));
     grid.innerHTML = `
       <div class="foco-bloco">
         <h3 class="foco-titulo ${TURNOS_INFO[turno].classe}">${escapeHtml(turno)} (${ordenado.length})</h3>
         <div class="cards-foco-grid">
-          ${ordenado.length === 0 ? '<div class="empty">Nenhum pedido pronto ou entregue ainda neste turno.</div>' : ordenado.map(p => templateCardPronto(p, vinculos)).join('')}
+          ${ordenado.length === 0 ? '<div class="empty">Nenhum pedido entregue ainda neste turno.</div>' : ordenado.map(p => templateCardPronto(p, vinculos)).join('')}
         </div>
       </div>`;
     return;
   }
 
-  if (prontos.length === 0) {
-    grid.innerHTML = '<div class="empty">Nenhum pedido pronto ou entregue ainda hoje.</div>';
+  if (entregues.length === 0) {
+    grid.innerHTML = '<div class="empty">Nenhum pedido entregue ainda hoje.</div>';
     return;
   }
-  const ordenado = [...prontos].sort((a, b) => String(a.horario_entrega).localeCompare(String(b.horario_entrega)));
+  const ordenado = [...entregues].sort((a, b) => String(b.horario_entrega).localeCompare(String(a.horario_entrega)));
   grid.innerHTML = ordenado.map(p => templateCardPronto(p, vinculos)).join('');
 }
 
-async function togglePronto(id, novoStatus) {
-  await apiPost('markPronto', { id, status_pronto: novoStatus ? 'Sim' : 'Não' });
+// Marca como entregue e grava o horário REAL do clique (não um horário
+// planejado) — é isso que aparece depois como "Entregue às HH:MM".
+async function marcarEntregue(id) {
+  const agora = new Date();
+  const hhmm = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+  await apiPost('markEntregue', { id, entregue: true, horario_real: hhmm });
+  carregarPainel();
+}
+
+async function desfazerEntrega(id) {
+  await apiPost('markEntregue', { id, entregue: false });
   carregarPainel();
 }
 
@@ -1174,6 +1231,29 @@ function removerItemPlano(i) {
   renderPlanoLista();
 }
 
+// ---------- Ponto da carne (chip rápido que escreve na Observação) ----------
+const PONTOS_CARNE = ['Carne mal passada', 'Carne ao ponto', 'Carne bem passada'];
+
+function alternarPontoCarne(btn) {
+  const ponto = btn.dataset.ponto;
+  const textarea = document.getElementById('fObservacoes');
+  const jaAtivo = btn.classList.contains('ativo');
+
+  // Tira qualquer marcação de ponto da carne já escrita antes (só existe uma por vez)
+  let texto = textarea.value;
+  PONTOS_CARNE.forEach(p => {
+    texto = texto.split('\n').filter(linha => linha.trim() !== p).join('\n');
+  });
+  texto = texto.trim();
+  document.querySelectorAll('#pontoCarneChips .chip-ponto').forEach(b => b.classList.remove('ativo'));
+
+  if (!jaAtivo) {
+    btn.classList.add('ativo');
+    texto = texto ? texto + '\n' + ponto : ponto;
+  }
+  textarea.value = texto;
+}
+
 document.getElementById('formSolicitar').addEventListener('submit', async (e) => {
   e.preventDefault();
   const msg = document.getElementById('msgSolicitar');
@@ -1214,6 +1294,7 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
     document.getElementById('nutriResponsavel').value = currentUser.nome;
     document.getElementById('campoOutraRestricao').style.display = 'none';
     document.getElementById('campoOutraOrigem').style.display = 'none';
+    document.querySelectorAll('#pontoCarneChips .chip-ponto').forEach(b => b.classList.remove('ativo'));
     planoRefeicoes = [];
     renderPlanoLista();
     document.getElementById('planoData').value = hojeISO();
@@ -1251,32 +1332,43 @@ async function carregarEntregas() {
     return;
   }
 
-  let html = '<table><thead><tr><th>Refeição</th><th>Hóspede</th><th>Apto</th><th>Contato</th><th>Origem</th><th>Restrição</th><th>Prato</th><th>Horário</th><th>Pronto</th><th>Entregue</th><th>Ações</th></tr></thead><tbody>';
-  pedidos.forEach(p => {
-    html += `<tr>
-      <td>${escapeHtml(p.refeicao)}</td>
-      <td>${escapeHtml(p.hospede)}</td>
-      <td>${escapeHtml(p.apartamento || '—')}</td>
-      <td>${escapeHtml(p.contato || '—')}</td>
-      <td>${escapeHtml(p.origem || '—')}</td>
-      <td>${escapeHtml(p.tipo_restricao)}</td>
-      <td>${escapeHtml(p.prato)}</td>
-      <td>${escapeHtml(p.horario_entrega || '—')}</td>
-      <td><span class="pill ${p.status_pronto === 'Sim' ? 'sim' : 'nao'}">${p.status_pronto}</span></td>
-      <td><span class="pill ${p.entregue === 'Sim' ? 'sim' : 'nao'}">${p.entregue}</span></td>
-      <td class="acoes-linha">
-        <button class="secondary small" onclick="toggleEntregue('${p.id}', ${p.entregue !== 'Sim'})">${p.entregue === 'Sim' ? 'Desmarcar' : 'Marcar entregue'}</button>
+  const ordenados = [...pedidos].sort((a, b) => {
+    if (a.entregue !== b.entregue) return a.entregue === 'Sim' ? 1 : -1;
+    return String(a.horario_entrega || '').localeCompare(String(b.horario_entrega || ''));
+  });
+
+  let html = '<div class="entregas-lista">';
+  ordenados.forEach(p => {
+    const entregue = p.entregue === 'Sim';
+    html += `<div class="entrega-row${entregue ? ' entregue' : ''}">
+      <div>
+        <div class="er-hospede">${escapeHtml(p.hospede)}${p.apartamento ? ' <span class="muted">· Apto ' + escapeHtml(p.apartamento) + '</span>' : ''}</div>
+        <div class="er-meta">${escapeHtml(p.refeicao)} • ${escapeHtml(p.origem || '—')}${p.contato ? ' • ' + escapeHtml(p.contato) : ''}</div>
+        ${p.tipo_restricao ? `<div class="er-restricao">⚠️ ${escapeHtml(p.tipo_restricao)}</div>` : ''}
+      </div>
+      <div class="er-prato">${escapeHtml(p.prato)}${p.observacoes ? '<br><span class="muted">📝 ' + escapeHtml(p.observacoes).replace(/\n/g, ' · ') + '</span>' : ''}</div>
+      <div class="er-status">
+        <span class="entrega-status-pill ${entregue ? 'entregue' : 'pendente'}">${entregue ? '✓ Entregue às ' + escapeHtml(p.horario_entrega || '—') : '🟠 Pendente (previsto ' + escapeHtml(p.horario_entrega || '—') + ')'}</span>
+      </div>
+      <div class="er-acoes">
+        <button class="secondary small" onclick="toggleEntregue('${p.id}', ${!entregue})">${entregue ? 'Desmarcar entrega' : 'Marcar entregue'}</button>
         <button class="secondary small" onclick="abrirModalEditarPorId('${p.id}')">Corrigir</button>
         <button class="danger small" onclick="excluirPedido('${p.id}')">Excluir</button>
-      </td>
-    </tr>`;
+      </div>
+    </div>`;
   });
-  html += '</tbody></table>';
+  html += '</div>';
   wrap.innerHTML = html;
 }
 
 async function toggleEntregue(id, novoStatus) {
-  await apiPost('markEntregue', { id, entregue: novoStatus ? 'Sim' : 'Não' });
+  if (novoStatus) {
+    const agora = new Date();
+    const hhmm = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+    await apiPost('markEntregue', { id, entregue: true, horario_real: hhmm });
+  } else {
+    await apiPost('markEntregue', { id, entregue: false });
+  }
   carregarEntregas();
 }
 
@@ -1357,7 +1449,7 @@ async function carregarDashboard() {
     <div class="kpi"><div class="num">${pedidos.length}</div><div class="lbl">Total de pedidos</div></div>
     <div class="kpi"><div class="num">${new Set(pedidos.map(p => p.hospede + '|' + p.apartamento)).size}</div><div class="lbl">Hóspedes atendidos</div></div>
     <div class="kpi"><div class="num">${pedidos.filter(p => p.entregue === 'Sim').length}</div><div class="lbl">Entregues</div></div>
-    <div class="kpi"><div class="num">${pedidos.filter(p => p.status_pronto !== 'Sim').length}</div><div class="lbl">Pendentes na cozinha</div></div>
+    <div class="kpi"><div class="num">${pedidos.filter(p => p.entregue !== 'Sim').length}</div><div class="lbl">Pendentes na cozinha</div></div>
   `;
 
   desenharGrafico('chartTipo', 'bar', contarPor(pedidos, 'tipo_restricao'));
