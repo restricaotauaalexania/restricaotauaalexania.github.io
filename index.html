@@ -396,6 +396,15 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
 .coluna-refeicao h3{border-radius:999px;text-align:center;}
 .ord-item{border-left-color:#FF9500;border-radius:18px;}
 .est-hora-box{background:#fff4e0;border-color:#FF9500;border-radius:20px;}
+.dem-card{background:#fff;border-radius:22px;border-top:6px solid #FF9500;box-shadow:0 6px 20px rgba(0,0,0,.06);padding:12px 16px;margin-bottom:12px;}
+.dem-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.dem-t{flex:1;min-width:220px;}
+.dem-t small{display:block;color:#EC6724;font-weight:700;}
+.dem-rows{margin-top:10px;border-top:2px dotted #e8e6df;padding-top:8px;}
+.dem-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid #f0ede4;}
+.dem-row .dr-d{min-width:120px;font-size:12px;color:#495057;}
+.dem-row input[type=text]{flex:1;min-width:200px;}
+.dem-row.ok{opacity:.6;}
 /* Ordem de serviço (impressão) */
 #printArea, #printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 #printArea .os{font-family:Nunito,Arial,Helvetica,sans-serif;color:#111;}
@@ -455,6 +464,7 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
   <button data-view="painel" class="active">Painel da Cozinha</button>
   <button data-view="solicitar">Solicitar Prato</button>
   <button data-view="entregas">Gerenciar Entregas</button>
+  <button data-view="demandas">Demandas Abertas</button>
   <button data-view="dashboard">Dashboard</button>
   <button id="btnLoginNav">Entrar</button>
 </nav>
@@ -619,6 +629,16 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
     </div>
   </section>
 
+  <!-- DEMANDAS ABERTAS -->
+  <section id="view-demandas" class="view">
+    <div class="topbar"><h2>Demandas Abertas</h2><div class="topbar-acoes"><input type="text" id="demandasBusca" placeholder="Buscar hóspede, apto ou restrição" oninput="renderDemandas()" style="min-width:240px;"><button class="secondary" onclick="carregarDemandas()">Atualizar</button></div></div>
+    <div id="demandasBloqueado" class="aviso-login" style="display:none;">Esta área é restrita à equipe de nutrição. Faça login para gerenciar as demandas abertas.</div>
+    <div id="demandasConteudo" style="display:none;">
+      <div class="muted" style="margin-bottom:10px;">Pedidos já enviados à cozinha com refeições ainda não entregues (próximos 45 dias). Edite prato ou horário e reimprima a ordem de serviço atualizada.</div>
+      <div id="demandasLista"></div>
+    </div>
+  </section>
+
   <!-- DASHBOARD -->
   <section id="view-dashboard" class="view">
     <div class="topbar"><h2>Dashboard</h2></div>
@@ -743,6 +763,7 @@ function refreshView(nome) {
   if (nome === 'painel') carregarPainel();
   if (nome === 'solicitar') prepararSolicitar();
   if (nome === 'entregas') prepararEntregas();
+  if (nome === 'demandas') prepararDemandas();
   if (nome === 'dashboard') prepararDashboard();
 }
 
@@ -1765,6 +1786,79 @@ async function salvarEdicao() {
   } else {
     document.getElementById('editErro').textContent = r.error || 'Erro ao salvar';
   }
+}
+
+// ---------- Demandas Abertas ----------
+let demandasAtual = [], demandaAberta = null;
+function prepararDemandas() {
+  const bl = !currentUser;
+  document.getElementById('demandasBloqueado').style.display = bl ? 'block' : 'none';
+  document.getElementById('demandasConteudo').style.display = bl ? 'none' : 'block';
+  if (!bl) carregarDemandas();
+}
+async function carregarDemandas() {
+  const w = document.getElementById('demandasLista');
+  w.innerHTML = '<div class="empty">Carregando...</div>';
+  const b = new Date();
+  const r = await apiGet('listPedidos', { dataInicio: hojeISO(), dataFim: dataISO(new Date(b.getFullYear(), b.getMonth(), b.getDate() + 45)) });
+  demandasAtual = Array.isArray(r) ? r : [];
+  renderDemandas();
+}
+function demandaChave(p) { return String(p.grupo_id || ('h|' + p.hospede + '|' + p.apartamento)); }
+function demandaGrupos() {
+  const g = {};
+  demandasAtual.forEach(p => { (g[demandaChave(p)] = g[demandaChave(p)] || []).push(p); });
+  return Object.keys(g).map(k => ({ k, rows: g[k].sort(ordemDiaHora) })).filter(x => x.rows.some(p => p.entregue !== 'Sim'));
+}
+function renderDemandas() {
+  const w = document.getElementById('demandasLista');
+  const q = (document.getElementById('demandasBusca').value || '').toLowerCase().trim();
+  const grupos = demandaGrupos().filter(g => !q || (g.rows[0].hospede + ' ' + g.rows[0].apartamento + ' ' + g.rows[0].tipo_restricao).toLowerCase().includes(q));
+  if (!grupos.length) { w.innerHTML = '<div class="empty">Nenhuma demanda aberta.</div>'; return; }
+  w.innerHTML = grupos.map(g => {
+    const p0 = g.rows[0], abertas = g.rows.filter(p => p.entregue !== 'Sim');
+    const aberto = demandaAberta === g.k;
+    let h = '<div class="dem-card"><div class="dem-top"><div class="dem-t"><b>' + escapeHtml(p0.hospede) + '</b>' + (p0.apartamento ? ' · Apto ' + escapeHtml(p0.apartamento) : '') +
+      '<small>⚠️ ' + escapeHtml(p0.tipo_restricao || '') + ' · ' + abertas.length + ' refeição(ões) aberta(s) · ' + escapeHtml(formatDataBR(g.rows[0].data)) + ' a ' + escapeHtml(formatDataBR(g.rows[g.rows.length - 1].data)) + '</small></div>' +
+      '<button class="primary small" onclick="reimprimirDemanda(decodeURIComponent(\'' + encodeURIComponent(g.k) + '\'))">🖨️ Reimprimir ordem</button>' +
+      '<button class="secondary small" onclick="toggleDemanda(decodeURIComponent(\'' + encodeURIComponent(g.k) + '\'))">' + (aberto ? 'Fechar' : '✏️ Editar refeições') + '</button></div>';
+    if (aberto) {
+      h += '<div class="dem-rows">' + g.rows.map(p => {
+        const ok = p.entregue === 'Sim', id = escapeHtml(String(p.id));
+        return '<div class="dem-row' + (ok ? ' ok' : '') + '"><span class="dr-d"><b>' + escapeHtml(diaCurto(p)) + '</b><br>' + escapeHtml(p.refeicao) + '</span>' +
+          (ok ? '<span class="muted">✓ entregue às ' + escapeHtml(p.horario_entrega || '') + ' — ' + escapeHtml(p.prato || '') + '</span>' :
+          '<input type="time" id="dh_' + id + '" value="' + escapeHtml(p.horario_entrega || '') + '" required><input type="text" id="dp_' + id + '" value="' + escapeHtml(p.prato || '') + '">' +
+          '<button class="primary small" onclick="salvarDemandaLinha(\'' + id + '\')">Salvar</button>' +
+          (currentUser && currentUser.usuario === 'gabriel.cruz' ? '<button class="danger small" onclick="excluirDemandaLinha(\'' + id + '\')">Excluir</button>' : '')) + '</div>';
+      }).join('') + '</div>';
+    }
+    return h + '</div>';
+  }).join('');
+}
+function toggleDemanda(k) { demandaAberta = demandaAberta === k ? null : k; renderDemandas(); }
+async function salvarDemandaLinha(id) {
+  const p = demandasAtual.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const hora = document.getElementById('dh_' + id).value, prato = document.getElementById('dp_' + id).value.trim();
+  if (!hora || !prato) { alert('Informe horário e prato.'); return; }
+  if (!estConfirmaFaixa([p.data + '|' + p.refeicao], hora)) return;
+  const r = await apiPost('updatePedido', { id: p.id, hospede: p.hospede, apartamento: p.apartamento, contato: p.contato || '', data: p.data, origem: p.origem || '', refeicao: p.refeicao, horario_entrega: hora, tipo_restricao: p.tipo_restricao, prato: prato, observacoes: p.observacoes || '' });
+  if (r.ok) await carregarDemandas(); else alert(r.error || 'Erro ao salvar');
+}
+async function excluirDemandaLinha(id) {
+  if (!confirm('Excluir esta refeição da demanda?')) return;
+  const r = await apiPost('deletePedido', { id });
+  if (r.ok) await carregarDemandas(); else alert(r.error || 'Erro ao excluir');
+}
+function reimprimirDemanda(k) {
+  const g = demandaGrupos().find(x => x.k === k);
+  if (!g) return;
+  const p0 = g.rows[0], ag = new Date(), z = n => String(n).padStart(2, '0');
+  ultimaOrdem = { id: 'OS ' + String(p0.grupo_id || p0.id) + ' · REIMPRESSÃO ' + z(ag.getHours()) + ':' + z(ag.getMinutes()), emitida: ag.toISOString(),
+    p: { hospede: p0.hospede, apartamento: p0.apartamento, reserva: p0.reserva || '', contato: p0.contato || '', tipo_restricao: p0.tipo_restricao, observacoes: p0.observacoes || '', nutri_responsavel: currentUser ? currentUser.nome : '',
+      itens: g.rows.map(p => ({ data: p.data, refeicao: p.refeicao, horario: p.horario_entrega, prato: p.prato })) },
+    entrada: g.rows[0].data, saida: g.rows[g.rows.length - 1].data };
+  imprimirOrdem();
 }
 
 // ---------- Dashboard ----------
