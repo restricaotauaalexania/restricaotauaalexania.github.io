@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Restrições Alimentares — Tauá Alexânia</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
   :root{
@@ -362,51 +363,90 @@ button.secondary:hover{background:var(--verde-claro);border-color:var(--verde);}
 .ord-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border-left:5px solid var(--verde);border-radius:10px;padding:8px 12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
 .ord-item .oi-t{flex:1;min-width:200px;}
 .ord-item .oi-t small{display:block;color:#666;}
+/* ---- Identidade Tauá Resorts ---- */
+:root{--verde:#007A47;--verde-escuro:#00593a;--verde-claro:#e3f4ec;--laranja:#FF9500;--amarelo:#FFB000;--azul:#00A565;--roxo:#EC6724;--bg:#FAF9F5;--texto:#30302e;--texto-suave:#495057;--borda:#e8e6df;}
+body{font-family:Nunito,'Trebuchet MS','Segoe UI',sans-serif;background:#FAF9F5;}
+.faixa-promo{background:#EC6724;color:#fff;text-align:center;font-weight:800;font-size:12.5px;letter-spacing:.4px;padding:9px 12px;text-transform:uppercase;}
+body header{background:#fff;color:var(--verde-escuro);animation:none;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:12px 28px;}
+.hdr-marca{display:flex;align-items:center;gap:16px;}
+.hdr-logo{height:54px;width:auto;}
+body header h1{color:var(--verde-escuro);text-shadow:none;font-weight:900;font-size:19px;}
+body header .sub{color:#EC6724;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;font-size:11px;opacity:1;}
+.userbox{color:#495057;background:#f3f3f3;border-radius:999px;padding:7px 16px;}
+body nav{background:#fff;backdrop-filter:none;border-bottom:0;padding:10px 28px 14px;box-shadow:0 8px 14px -12px rgba(0,0,0,.18);}
+body nav button{border-radius:999px;border:2px solid #f0ede4;font-weight:800;}
+body nav button.active{background:#FF9500;border-color:#FF9500;color:#fff;box-shadow:0 5px 14px rgba(255,149,0,.4);}
+body nav button:hover{border-color:#FF9500;box-shadow:0 6px 16px rgba(255,149,0,.25);}
+body #btnLoginNav{background:#007A47;border-color:#007A47;}
+body button.primary{background:#FF9500;border-radius:999px;font-weight:800;box-shadow:0 4px 12px rgba(255,149,0,.4);}
+body button.primary:hover{background:#EC6724;box-shadow:0 8px 18px rgba(236,103,36,.4);}
+body button.secondary{border-radius:999px;font-weight:700;border:2px solid #e8e6df;}
+body button.secondary:hover{background:#fff4e0;border-color:#FF9500;}
+body button.small{border-radius:999px;}
+form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:0;}
+.form-secao{border-radius:22px;border-left:0;border-top:6px solid #FF9500;box-shadow:0 6px 20px rgba(0,0,0,.06);}
+.form-secao:nth-of-type(2){border-top-color:#007A47;}
+.form-secao:nth-of-type(3){border-top-color:#EC6724;}
+.form-secao:nth-of-type(4){border-top-color:#00A565;}
+.form-secao h4 .num{background:#FF9500;color:#fff;}
+.topbar h2{color:var(--verde-escuro);font-weight:900;background:linear-gradient(90deg,#FF9500,#EC6724) 0 100%/70% 4px no-repeat;}
+.pill.on{background:#FF9500;color:#fff;border-color:#FF9500;}
+.visual-toggle button.active{background:#FF9500;border-color:#FF9500;color:#fff;}
+.coluna-refeicao{border-radius:22px;background:#fff;}
+.coluna-refeicao h3{border-radius:999px;text-align:center;}
+.ord-item{border-left-color:#FF9500;border-radius:18px;}
+.est-hora-box{background:#fff4e0;border-color:#FF9500;border-radius:20px;}
 /* Ordem de serviço (impressão) */
 #printArea, #printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-#printArea .os{font-family:Arial,Helvetica,sans-serif;color:#111;}
-#printArea .os-top{display:flex;justify-content:space-between;align-items:flex-end;background:#0e3b2e;color:#fff;padding:5mm 6mm;border-radius:3mm 3mm 0 0;}
-#printArea .os-k{font-size:9pt;letter-spacing:3px;color:#9fe3c5;}
+#printArea .os{font-family:Nunito,Arial,Helvetica,sans-serif;color:#111;}
+#printArea .os-top{display:flex;justify-content:space-between;align-items:flex-end;background:#007A47;color:#fff;padding:5mm 6mm;border-radius:3mm 3mm 0 0;}
+#printArea .os-k{font-size:9pt;letter-spacing:3px;color:#d8f5e6;}
 #printArea .os-t{font-size:20pt;font-weight:900;line-height:1.1;}
-#printArea .os-n{text-align:right;font-size:8.5pt;line-height:1.4;color:#cfeee0;}
-#printArea .os-id{display:flex;border:2px solid #0e3b2e;border-top:0;}
-#printArea .os-apto{background:#f5c400;padding:3mm 7mm;text-align:center;min-width:42mm;border-right:2px solid #0e3b2e;}
+#printArea .os-n{text-align:right;font-size:8.5pt;line-height:1.4;color:#e8f8ef;}
+#printArea .os-id{display:flex;border:2px solid #007A47;border-top:0;}
+#printArea .os-apto{background:#FFB000;padding:3mm 7mm;text-align:center;min-width:42mm;border-right:2px solid #007A47;}
 #printArea .os-apto small,#printArea .os-hosp small{display:block;font-size:8pt;letter-spacing:2px;font-weight:700;}
 #printArea .os-apto b{font-size:40pt;line-height:1;font-weight:900;}
 #printArea .os-hosp{padding:3mm 6mm;flex:1;}
 #printArea .os-hosp b{display:block;font-size:22pt;font-weight:900;line-height:1.1;margin-top:1mm;}
 #printArea .os-hosp span{font-size:9pt;color:#444;}
-#printArea .os-faixa{height:5mm;background:repeating-linear-gradient(-45deg,#111 0 4mm,#f5c400 4mm 8mm);}
+#printArea .os-faixa{height:5mm;background:repeating-linear-gradient(-45deg,#111 0 4mm,#FFB000 4mm 8mm);}
 #printArea .os-alerta{background:#c0141c;color:#fff;padding:3mm 6mm;display:flex;align-items:baseline;gap:5mm;}
 #printArea .os-alerta span{font-size:9pt;letter-spacing:2px;font-weight:700;white-space:nowrap;}
 #printArea .os-alerta b{font-size:26pt;font-weight:900;text-transform:uppercase;line-height:1.1;}
 #printArea .os-estadia{display:flex;gap:3mm;flex-wrap:wrap;margin:4mm 0 2mm;font-size:10pt;}
-#printArea .os-chip{border:2px solid #0e3b2e;border-radius:20mm;padding:1mm 4mm;font-weight:700;}
-#printArea .os-chip.f{background:#0e3b2e;color:#fff;}
+#printArea .os-chip{border:2px solid #007A47;border-radius:20mm;padding:1mm 4mm;font-weight:700;}
+#printArea .os-chip.f{background:#007A47;color:#fff;}
 #printArea .os-dia{margin-top:4mm;page-break-inside:avoid;}
 #printArea .os-dh{display:flex;align-items:center;gap:3mm;margin-bottom:2mm;}
-#printArea .os-dh b{background:#0e3b2e;color:#fff;font-size:13pt;padding:1mm 5mm;border-radius:20mm;text-transform:uppercase;letter-spacing:1px;}
+#printArea .os-dh b{background:#007A47;color:#fff;font-size:13pt;padding:1mm 5mm;border-radius:20mm;text-transform:uppercase;letter-spacing:1px;}
 #printArea .os-dh span{font-size:10pt;color:#444;}
-#printArea .os-dh i{flex:1;border-top:2px dotted #0e3b2e;}
-#printArea .os-card{display:flex;align-items:stretch;border:1.5px solid #0e3b2e;border-radius:3mm;margin-bottom:2.5mm;overflow:hidden;page-break-inside:avoid;}
-#printArea .os-h{background:#f08c00;color:#111;font-size:21pt;font-weight:900;padding:2mm 4mm;display:flex;align-items:center;min-width:30mm;justify-content:center;}
+#printArea .os-dh i{flex:1;border-top:2px dotted #007A47;}
+#printArea .os-card{display:flex;align-items:stretch;border:1.5px solid #007A47;border-radius:3mm;margin-bottom:2.5mm;overflow:hidden;page-break-inside:avoid;}
+#printArea .os-h{background:#FF9500;color:#111;font-size:21pt;font-weight:900;padding:2mm 4mm;display:flex;align-items:center;min-width:30mm;justify-content:center;}
 #printArea .os-b{flex:1;padding:2mm 4mm;}
-#printArea .os-s{font-size:9pt;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#0e3b2e;}
+#printArea .os-s{font-size:9pt;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#007A47;}
 #printArea .os-p{font-size:14pt;font-weight:900;line-height:1.2;margin-top:.5mm;}
-#printArea .os-ck{display:flex;flex-direction:column;justify-content:center;gap:1.5mm;padding:2mm 4mm;border-left:1.5px dashed #0e3b2e;font-size:8.5pt;}
+#printArea .os-ck{display:flex;flex-direction:column;justify-content:center;gap:1.5mm;padding:2mm 4mm;border-left:1.5px dashed #007A47;font-size:8.5pt;}
 #printArea .os-ck u{display:inline-block;width:4.5mm;height:4.5mm;border:1.5px solid #111;margin-right:1.5mm;text-decoration:none;vertical-align:middle;}
 #printArea .os-obs{margin-top:4mm;border:2px dashed #c0141c;border-radius:3mm;padding:3mm 5mm;min-height:14mm;}
 #printArea .os-obs small{display:block;font-size:8pt;letter-spacing:2px;font-weight:700;color:#c0141c;}
 #printArea .os-ass{display:flex;gap:8mm;margin-top:12mm;}
 #printArea .os-ass div{flex:1;border-top:1.5px solid #111;padding-top:1mm;font-size:8.5pt;text-align:center;}
+#printArea .os-lg{display:flex;align-items:center;gap:5mm;}
+#printArea .os-logo{height:13mm;background:#fff;border-radius:3mm;padding:1.5mm 3mm;}
 </style>
 </head>
 <body>
 
+<div class="faixa-promo">Alimentação segura · cuidado com cada hóspede, em cada refeição</div>
 <header>
-  <div>
-    <h1>Controle de Restrições Alimentares</h1>
-    <div class="sub">Tauá Alexânia</div>
+  <div class="hdr-marca">
+    <img class="hdr-logo" src="https://tauaresorts.com.br/logos/taua_logo.png" alt="Tauá">
+    <div>
+      <h1>Controle de Restrições Alimentares</h1>
+      <div class="sub">Tauá Alexânia</div>
+    </div>
   </div>
   <div id="userArea" class="userbox"></div>
 </header>
@@ -1524,7 +1564,7 @@ function imprimirOrdem() {
   const noites = Math.max(0, Math.round((new Date(o.saida + 'T00:00:00') - new Date(o.entrada + 'T00:00:00')) / 86400000));
   const itens = p.itens.slice().sort((a, b) => (a.data + a.horario).localeCompare(b.data + b.horario));
   const dias = [...new Set(itens.map(i => i.data))];
-  let html = '<div class="os"><div class="os-top"><div><div class="os-k">ORDEM DE SERVIÇO</div><div class="os-t">Restrição Alimentar</div></div>' +
+  let html = '<div class="os"><div class="os-top"><div class="os-lg"><img class="os-logo" src="https://tauaresorts.com.br/logos/taua_logo.png" alt=""><div><div class="os-k">ORDEM DE SERVIÇO</div><div class="os-t">Restrição Alimentar</div></div></div>' +
     '<div class="os-n"><b>' + escapeHtml(o.id) + '</b><br>emitida ' + emit + '<br>Nutri: ' + escapeHtml(p.nutri_responsavel || '') + '</div></div>' +
     '<div class="os-id"><div class="os-apto"><small>APTO</small><b>' + escapeHtml(p.apartamento || '—') + '</b></div>' +
     '<div class="os-hosp"><small>HÓSPEDE</small><b>' + escapeHtml(p.hospede) + '</b><span>' + (p.reserva ? 'Reserva ' + escapeHtml(p.reserva) : '') + (p.contato ? ' · ' + escapeHtml(p.contato) : '') + '</span></div></div>' +
