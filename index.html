@@ -284,6 +284,30 @@
   body.modo-tv .visual-toggle{display:none;}
   body.modo-tv .restricao-alerta{font-size:17px;padding:10px 12px;}
   body.modo-tv .vinculo-refeicoes{font-size:13px;}
+.pill{border:1px solid var(--borda);border-radius:999px;padding:5px 13px;font-size:13px;cursor:pointer;background:#fff;color:var(--texto);}
+.pill.on{background:var(--verde-claro);color:var(--verde-escuro);border-color:var(--verde);}
+.est-scroll{overflow-x:auto;}
+.est-grid{display:grid;grid-template-columns:78px repeat(5,minmax(96px,1fr));gap:6px;min-width:640px;}
+.est-h{font-size:12px;color:var(--texto-suave);text-align:center;padding:2px 0;}
+.est-d{font-size:12px;color:var(--texto-suave);display:flex;flex-direction:column;justify-content:center;}
+.est-d b{color:var(--texto);font-size:14px;}
+.est-c{border:1px dashed var(--amarelo);background:#fdf5e1;color:#7a5b10;border-radius:8px;min-height:48px;font-size:11px;padding:4px 5px;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;line-height:1.25;animation:estPulso 1.8s ease-in-out infinite;}
+.est-c.ok{border:1px solid var(--verde);background:var(--verde-claro);color:var(--verde-escuro);animation:none;}
+.est-c.sel{outline:2px solid var(--azul);outline-offset:1px;animation:none;}
+@keyframes estPulso{0%,100%{opacity:1}50%{opacity:.55}}
+.est-prog{font-size:13px;margin:6px 0 4px;}
+.est-barra{height:6px;border-radius:3px;background:#e7ece9;overflow:hidden;margin-bottom:12px;}
+.est-barra i{display:block;height:100%;width:0;background:var(--verde);transition:width .3s;}
+.est-painel{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:12px 14px;}
+.est-selinfo{font-weight:600;margin-bottom:8px;}
+.est-abas{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+.est-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.est-busca{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
+.est-busca input{flex:1;min-width:160px;}
+.est-lista{max-height:190px;overflow:auto;border:1px solid var(--borda);border-radius:8px;}
+.est-it{padding:8px 10px;border-bottom:1px solid var(--borda);cursor:pointer;font-size:13px;}
+.est-it:hover{background:var(--verde-claro);}
+.est-it small{display:block;color:var(--texto-suave);font-size:11px;}
 #printArea { display: none; }
 @media print {
   body > *:not(#printArea) { display: none !important; }
@@ -401,50 +425,36 @@
           <label>Qual restrição (Outro)? *</label>
           <input type="text" id="fTipoRestricaoOutro">
         </div>
-        <div class="campo" style="margin-bottom:0;">
-          <label>Prato solicitado pela nutrição *</label>
-          <input type="text" id="fPrato" required>
-        </div>
       </div>
 
       <div class="form-secao">
-        <h4><span class="num">3</span>Plano de refeições</h4>
-        <div class="plano-box">
-          <div class="muted" style="margin-bottom:10px;">1) Marque quais refeições este hóspede vai receber, na ordem do dia (pode marcar quantas quiser). 2) Diga a partir de quando e por quantos dias. 3) Clique em adicionar — o plano inteiro é criado numa vez só.</div>
-
-          <div class="refeicoes-toggle-grid" id="refeicoesToggleGrid"></div>
-
-          <div class="linha-dois" style="margin-top:14px;">
-            <div class="campo"><label>Data de início</label><input type="date" id="planoData" onchange="atualizarPreviewPlano()"></div>
-            <div class="campo"><label>Repetir por quantos dias?</label><input type="number" id="planoDias" min="1" value="1" oninput="atualizarPreviewPlano()"></div>
+        <h4><span class="num">3</span>Estadia e pratos</h4>
+        <div class="linha-dois">
+          <div class="campo"><label>Entrada do hóspede *</label><input type="date" id="eEntrada" onchange="estMudouDatas()"></div>
+          <div class="campo"><label>Saída do hóspede *</label><input type="date" id="eSaida" onchange="estMudouDatas()"></div>
+        </div>
+        <div class="est-prog"><span id="estProg">—</span></div>
+        <div class="est-barra"><i id="estBarra"></i></div>
+        <div class="est-scroll"><div class="est-grid" id="estadiaGrid"></div></div>
+        <div class="muted" style="margin:8px 0 12px;font-size:13px;">Toque nas casas para selecionar uma ou várias (mesmo prato para todas). Amarelo piscando = falta preencher. Verde = prato definido.</div>
+        <div class="est-painel">
+          <div id="estSelInfo" class="est-selinfo">Selecione uma ou mais casas acima</div>
+          <div class="est-abas">
+            <button type="button" class="pill on" id="estTabMenu" onclick="estAba('menu')">Consultar menu</button>
+            <button type="button" class="pill" id="estTabLivre" onclick="estAba('livre')">Escrever prato</button>
+            <span class="muted" style="margin-left:auto;font-size:13px;">Horário (opcional)</span>
+            <input type="time" id="estHora" style="width:110px;">
           </div>
-
-          <div id="planoPreview" class="plano-preview"></div>
-          <button type="button" class="primary btn-add-plano" onclick="adicionarVariosDiasPlano()">+ Adicionar refeições marcadas ao plano</button>
-
-          <details class="avulso-details">
-            <summary>Precisa de uma refeição fora do padrão acima? (dia avulso / exceção)</summary>
-            <div class="plano-avulso">
-              <div class="linha-tres">
-                <div class="campo"><label>Data</label><input type="date" id="avulsoData"></div>
-                <div class="campo"><label>Refeição</label>
-                  <select id="avulsoRefeicao">
-                    <option>Café da Manhã</option>
-                    <option>Lanche da Manhã</option>
-                    <option>Almoço</option>
-                    <option>Lanche da Tarde</option>
-                    <option>Jantar</option>
-                  </select>
-                </div>
-                <div class="campo"><label>Horário</label><input type="time" id="avulsoHorario" value="07:30"></div>
-              </div>
-              <button type="button" class="secondary small" onclick="adicionarItemAvulso()">+ Adicionar refeição avulsa</button>
-            </div>
-          </details>
-
-          <div id="planoLista" class="plano-lista"></div>
-          <div id="planoMsg"></div>
-          <div id="planoVazio" class="muted" style="margin-top:8px;">Nenhuma refeição adicionada ainda.</div>
+          <div id="estPaneMenu">
+            <div class="est-pills" id="estRest"></div>
+            <div class="est-busca"><input type="text" id="estBusca" placeholder="Buscar: tapioca, risoto, bolo..." oninput="estLista()"><div class="est-pills" id="estCats"></div></div>
+            <div class="est-lista" id="estLista"></div>
+          </div>
+          <div id="estPaneLivre" style="display:none;">
+            <textarea id="estTexto" placeholder="Descreva o prato" style="min-height:70px;"></textarea>
+            <button type="button" class="secondary small" onclick="estUsarTexto()">Usar este prato nas casas selecionadas</button>
+          </div>
+          <div id="estMsg" class="muted" style="font-size:13px;margin-top:6px;"></div>
         </div>
       </div>
 
@@ -1117,7 +1127,6 @@ async function desfazerEntrega(id) {
 // ---------- Solicitar Prato ----------
 let metaCarregada = false;
 let planoInicializado = false;
-let planoRefeicoes = []; // { data:'yyyy-mm-dd', refeicao, horario }
 
 async function prepararSolicitar() {
   const bloqueado = !currentUser;
@@ -1127,11 +1136,11 @@ async function prepararSolicitar() {
 
   document.getElementById('nutriResponsavel').value = currentUser.nome;
   if (!planoInicializado) {
-    document.getElementById('planoData').value = hojeISO();
-    document.getElementById('avulsoData').value = hojeISO();
+    document.getElementById('eEntrada').value = hojeISO();
+    document.getElementById('eSaida').value = hojeISO();
     planoInicializado = true;
   }
-  atualizarPreviewPlano();
+  desenharEstadia(); estMenuBotoes(); estLista();
 
   if (!metaCarregada) {
     try {
@@ -1165,126 +1174,122 @@ document.getElementById('fOrigem').addEventListener('change', e => {
   document.getElementById('campoOutraOrigem').style.display = e.target.value === 'Outro' ? 'block' : 'none';
 });
 
-// ---------- Plano de refeições (suporta dias/refeições diferentes numa só submissão) ----------
+// ---------- Estadia: grade dia x serviço + menu restritivo ----------
+const MENU_RESTRITIVO = {"Vegano": {"caf": ["Pão 7 grãos vegano", "Pão de forma vegano", "Pães sem leite e ovos e sem glúten", "Tapioca com queijo vegano", "Tapioca (caponata de berinjela, guacamole de abacate, homus de grão de bico com abobrinha, queijo vegano e sem lactose)", "Cuscuz de milho e tapioca", "Pamonha doce ou salgada", "Bolo vegano de coco", "Bolo vegano e sem lactose (laranja, cenoura, chocolate)", "Bolo de tapioca granulada vegana::sem glúten", "Pão de queijo vegano::sem glúten", "Brownie vegano", "Pasta de amendoim vegana", "Iogurte vegano e sem lactose", "Queijo vegano e sem lactose", "Leite vegetal", "Leite de arroz", "Leite de amêndoas"], "alm": ["Steak de proteína de soja com cuscuz marroquino e legumes", "Escondidinho de mandioca com proteína de soja", "Quibe vegano com proteína de soja recheado com frutas secas", "Espaguete ao molho sugo com almôndega vegana (Fazenda do Futuro)", "Frango xadrez com proteína vegana e arroz branco", "Isca de frango vegetal (Seara)", "Supreme de frango vegetal (Seara) ao creme de milho, com arroz e batata frita", "Isca de peixe vegetal (Seara) com arroz à grega e musseline de baroa", "Feijoada vegana com legumes e linguiça vegetal", "Hambúrguer de grão-de-bico com brócolis, queijo tofu grelhado com ervas", "Brusqueta integral com abacate e queijo tofu", "Lasanha de berinjela", "Espaguete de abobrinha ao sugo", "Espaguete de cenoura ao pesto", "Spaghetti de vegetais com cogumelos frescos ao alho e óleo", "Risoto de abóbora com sálvia e queijo vegano", "Risoto de limão siciliano", "Risoto de palmito com grillé de linguiça vegano", "Risoto de funghi com hambúrguer vegano selado", "Moqueca de palmito com banana da terra e linguiça vegana", "Caldo verde com linguiça vegana", "Abóbora com batata baroa e gengibre", "Sopa de legumes"], "sob": ["Pudim sem proteína do leite", "Strogonoff de frutas vegano", "Brownie vegano", "Creme de chocolate com morangos::sem glúten"]}, "Sem glúten": {"caf": ["Ovo mexido", "Bacon", "Cuscuz temperado::sem leite, sem ovo", "Cuscuz de milho e tapioca", "Pães sem leite e ovos e sem glúten", "Pamonha doce ou salgada", "Tapioca (caponata de berinjela, guacamole de abacate, homus de grão de bico com abobrinha, queijo vegano e sem lactose)", "Sanduíche natural (pão de forma sem glúten, peito de peru, alface, tomate)::sem leite, contém ovo", "Pão de queijo vegano::sem leite, sem ovo", "Bolo de banana, aveia e uva passa::sem leite, contém ovo", "Bolo de banana com uva passa::sem leite, contém ovo", "Bolo de cenoura com calda de chocolate::sem leite, contém ovo", "Bolo de tapioca granulada vegano::sem leite, sem ovo", "Bolo Grani Amici (sabores)::sem lactose", "Bolo de churros::sem lactose", "Iogurte vegano e sem lactose", "Queijo vegano e sem lactose", "Leite vegetal"], "alm": ["Risoto caprese com medalhão de mignon grelhado::manteiga de coco e queijo sem lactose", "Risoto milanês com supremo de frango grelhado::manteiga de coco e queijo sem lactose", "Risoto de filé mignon::sem leite", "Risoto de palmito com grillé de linguiça vegano", "Risoto de funghi com hambúrguer vegano selado", "Risoto de limão siciliano", "Penne Urbano sem glúten (molho sugo ou bolonhesa)", "Penne ou spaghetti sem glúten ao pomodoro", "Penne ou spaghetti sem glúten ao pesto", "Nhoque de batata, abóbora ou mandioca ao pomodoro ou pesto sem glúten", "Spaghetti de vegetais com cogumelos frescos ao alho e óleo", "Arroz branco com legumes ao vapor, grelhado (peixe, carne ou frango) e feijão (opcional)", "Strogonoff de frango ou mignon::leite de coco e amêndoas, mostarda sem glúten", "Panqueca de carne moída ao molho sugo", "Panqueca de palmito e alho-poró", "Panquecas: farinha de arroz ou de grão-de-bico", "Empadão de palmito sem glúten", "Lasanha de berinjela", "Hambúrguer de grão-de-bico com brócolis, queijo tofu grelhado com ervas e espaguete de abobrinha ao sugo", "Isca de frango vegetal (Seara) com espaguete de cenoura ao pesto", "Supreme de frango vegetal (Seara) ao creme de milho, com arroz e batata frita", "Moqueca de palmito com banana da terra e linguiça vegana"], "sob": ["Taça/copo de suspiro, merengue e frutas vermelhas::sem leite, contém ovo", "Creme de chocolate com merengue::sem leite, contém ovo", "Creme de chocolate com morangos::sem leite, sem ovo", "Tortelete de frutas tropicais::sem leite, contém ovo", "Queijadinha de maracujá::sem leite, contém ovo", "Manjar de coco com calda de laranja::sem leite, contém ovo", "Panna cotta sem glúten", "Verrine de chocolate sem glúten", "Strogonoff de frutas::sem lactose"]}, "Sem lactose": {"caf": ["Ovo mexido sem leite", "Bacon", "Cuscuz temperado::sem glúten, sem ovo", "Cuscuz de milho e tapioca", "Pães sem leite e ovos e sem glúten", "Pamonha doce ou salgada", "Tapioca (caponata de berinjela, guacamole de abacate, homus de grão de bico com abobrinha, queijo vegano e sem lactose)", "Sanduíche natural (pão de forma sem glúten, peito de peru, alface, tomate)::sem leite, sem glúten, contém ovo", "Pão de queijo vegano::sem glúten, sem ovo", "Bolo de banana, aveia e uva passa::sem glúten, contém ovo", "Bolo de banana com uva passa::sem glúten, contém ovo", "Bolo de cenoura com calda de chocolate::sem glúten, contém ovo", "Bolo de tapioca granulada vegano::sem glúten, sem ovo", "Bolo Grani Amici (sabores)::sem glúten", "Bolo de churros::sem glúten", "Bolo vegano de coco", "Brownie vegano", "Iogurte vegano e sem lactose", "Iogurte (sabores) sem lactose", "Queijo vegano e sem lactose", "Leite vegetal", "Leite de arroz", "Leite de amêndoas", "Leite sem lactose::contém proteína do leite"], "alm": ["Penne Urbano sem glúten (molho sugo ou bolonhesa)", "Arroz branco com legumes ao vapor, grelhado (peixe, carne ou frango) e feijão (opcional)", "Strogonoff de frango ou mignon::leite de coco e amêndoas, mostarda sem glúten", "Risoto de palmito com grillé de linguiça"], "sob": ["Pudim sem lactose", "Taça/copo de suspiro, merengue e frutas vermelhas::sem glúten, contém ovo", "Creme de chocolate com merengue::sem glúten, contém ovo", "Creme de chocolate com morangos::sem glúten, sem ovo", "Tortelete de frutas tropicais::sem glúten, contém ovo", "Queijadinha de maracujá::sem glúten, contém ovo", "Manjar de coco com calda de laranja::sem glúten, contém ovo", "Strogonoff de frutas::sem glúten"]}};
+const MENU_CATS = { caf: 'Café e lanches', alm: 'Almoço e jantar', sob: 'Sobremesas' };
+const GRUPO_SERVICO = { 'Café da Manhã': 'caf', 'Lanche da Manhã': 'caf', 'Almoço': 'alm', 'Lanche da Tarde': 'caf', 'Jantar': 'alm' };
+const SERVICO_CURTO = { 'Café da Manhã': 'Café', 'Lanche da Manhã': 'Lanche manhã', 'Almoço': 'Almoço', 'Lanche da Tarde': 'Lanche tarde', 'Jantar': 'Jantar' };
+let estCelulas = {}; // 'yyyy-mm-dd|Refeição' -> { prato, horario }
+let estSel = {};
+let menuRest = 'Vegano', menuCat = 'caf';
+
+function dataISO(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function formatDataBR(iso) {
   if (!iso) return '—';
-  const partes = iso.split('-');
-  if (partes.length !== 3) return iso;
-  return partes[2] + '/' + partes[1] + '/' + partes[0];
+  const p = iso.split('-');
+  return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : iso;
 }
-
-function renderPlanoLista() {
-  const wrap = document.getElementById('planoLista');
-  const vazio = document.getElementById('planoVazio');
-  if (planoRefeicoes.length === 0) {
-    wrap.innerHTML = '';
-    vazio.style.display = 'block';
+function estDias() {
+  const e = document.getElementById('eEntrada').value, sd = document.getElementById('eSaida').value;
+  if (!e || !sd || sd < e) return [];
+  const out = [], d = new Date(e + 'T00:00:00'), fim = new Date(sd + 'T00:00:00');
+  while (d <= fim && out.length < 31) { out.push(new Date(d)); d.setDate(d.getDate() + 1); }
+  return out;
+}
+function estChave(iso, ref) { return iso + '|' + ref; }
+function estMudouDatas() {
+  const e = document.getElementById('eEntrada'), sd = document.getElementById('eSaida');
+  if (e.value && (!sd.value || sd.value < e.value)) sd.value = e.value;
+  estSel = {};
+  desenharEstadia();
+}
+function desenharEstadia() {
+  const dias = estDias(), grid = document.getElementById('estadiaGrid');
+  if (!dias.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Informe a entrada e a saída do hóspede para ver os dias.</div>';
+    document.getElementById('estProg').textContent = '—';
+    document.getElementById('estBarra').style.width = '0%';
     return;
   }
-  vazio.style.display = 'none';
-  const ordemRefeicao = ORDEM_REFEICAO;
-  const comIndice = planoRefeicoes.map((item, i) => ({ item, i }));
-  comIndice.sort((a, b) => {
-    if (a.item.data !== b.item.data) return a.item.data < b.item.data ? -1 : 1;
-    return (ordemRefeicao[a.item.refeicao] ?? 9) - (ordemRefeicao[b.item.refeicao] ?? 9);
-  });
-  wrap.innerHTML = comIndice.map(({ item, i }) => `
-    <div class="plano-item">
-      <div class="info">
-        <span class="data-badge">${formatDataBR(item.data)}</span>
-        <span>${escapeHtml(item.refeicao)}</span>
-        <span class="muted">${escapeHtml(item.horario || '—')}</span>
-      </div>
-      <button type="button" onclick="removerItemPlano(${i})" title="Remover">✕</button>
-    </div>`).join('');
-}
-
-// Evita itens duplicados: se a mesma data+refeição já está no plano,
-// apenas atualiza o horário em vez de criar linha repetida.
-function inserirNoPlano(data, refeicao, horario) {
-  const i = planoRefeicoes.findIndex(it => it.data === data && it.refeicao === refeicao);
-  if (i >= 0) {
-    planoRefeicoes[i].horario = horario;
-    return 'atualizado';
-  }
-  planoRefeicoes.push({ data, refeicao, horario });
-  return 'adicionado';
-}
-
-let planoMsgTimer = null;
-function mostrarPlanoMsg(texto) {
-  const el = document.getElementById('planoMsg');
-  el.textContent = texto;
-  el.style.opacity = '1';
-  clearTimeout(planoMsgTimer);
-  planoMsgTimer = setTimeout(() => { el.style.opacity = '0'; }, 4000);
-}
-
-// Mostra, antes de clicar em "Adicionar", quantas refeições serão criadas —
-// evita a confusão de não saber o que vai acontecer ao clicar no botão.
-function atualizarPreviewPlano() {
-  const preview = document.getElementById('planoPreview');
-  if (!preview) return;
-  const dias = parseInt(document.getElementById('planoDias').value, 10) || 1;
-  const marcadas = REFEICOES_DEF.filter(r => document.getElementById(r.chk).checked).map(r => r.nome);
-
-  if (marcadas.length === 0) {
-    preview.className = 'plano-preview vazio';
-    preview.textContent = 'Marque ao menos uma refeição acima para montar o plano.';
-    return;
-  }
-  const total = marcadas.length * dias;
-  preview.className = 'plano-preview';
-  preview.textContent = `✓ ${total} refeição(ões) será(ão) adicionada(s): ${marcadas.join(' + ')} — repetindo por ${dias} dia(s).`;
-}
-
-function adicionarVariosDiasPlano() {
-  const dataInicio = document.getElementById('planoData').value;
-  const dias = parseInt(document.getElementById('planoDias').value, 10) || 1;
-  if (!dataInicio) { alert('Informe a data de início do plano.'); return; }
-
-  const refs = REFEICOES_DEF
-    .filter(r => document.getElementById(r.chk).checked)
-    .map(r => [r.nome, document.getElementById(r.hora).value]);
-  if (refs.length === 0) { alert('Marque ao menos uma refeição para adicionar.'); return; }
-
-  let adicionados = 0, atualizados = 0;
-  const base = new Date(dataInicio + 'T00:00:00');
-  for (let n = 0; n < dias; n++) {
-    const d = new Date(base.getTime());
-    d.setDate(d.getDate() + n);
-    const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    refs.forEach(([refeicao, horario]) => {
-      inserirNoPlano(iso, refeicao, horario) === 'adicionado' ? adicionados++ : atualizados++;
+  let h = '<div></div>' + REFEICOES_DEF.map(r => '<div class="est-h">' + escapeHtml(SERVICO_CURTO[r.nome]) + '</div>').join('');
+  let ok = 0;
+  dias.forEach(d => {
+    const iso = dataISO(d);
+    h += '<div class="est-d"><b>' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + '</b>' + d.toLocaleDateString('pt-BR', { weekday: 'short' }) + '</div>';
+    REFEICOES_DEF.forEach(r => {
+      const k = estChave(iso, r.nome), c = estCelulas[k];
+      if (c) ok++;
+      h += '<div class="est-c' + (c ? ' ok' : '') + (estSel[k] ? ' sel' : '') + '" data-k="' + k + '" title="' + escapeHtml(c ? c.prato : 'Falta definir') + '">' + (c ? escapeHtml(c.prato.length > 34 ? c.prato.slice(0, 33) + '…' : c.prato) : 'falta') + '</div>';
     });
+  });
+  grid.innerHTML = h;
+  grid.querySelectorAll('.est-c').forEach(el => el.onclick = () => estToggle(el.dataset.k));
+  const total = dias.length * REFEICOES_DEF.length;
+  document.getElementById('estProg').textContent = ok + ' de ' + total + ' refeições definidas';
+  document.getElementById('estBarra').style.width = (ok / total * 100) + '%';
+}
+function estToggle(k) {
+  if (estSel[k]) delete estSel[k]; else estSel[k] = 1;
+  const chaves = Object.keys(estSel), n = chaves.length;
+  document.getElementById('estSelInfo').textContent = n ? n + ' casa(s) selecionada(s)' : 'Selecione uma ou mais casas acima';
+  if (n) {
+    const ref = chaves[0].split('|')[1];
+    menuCat = GRUPO_SERVICO[ref] || 'caf';
+    const sug = estSugerirRestricao();
+    if (sug) menuRest = sug;
   }
-
-  // Desmarca as refeições após adicionar — evita que o próximo clique
-  // duplique o que já foi lançado (ex: café entrando de novo junto com o almoço).
-  REFEICOES_DEF.forEach(r => { document.getElementById(r.chk).checked = false; });
-  atualizarPreviewPlano();
-
-  renderPlanoLista();
-  let msg = adicionados > 0 ? `✓ ${adicionados} refeição(ões) adicionada(s) ao plano.` : '';
-  if (atualizados > 0) msg += ` ${atualizados} já existia(m) — apenas o horário foi atualizado.`;
-  mostrarPlanoMsg(msg.trim());
+  desenharEstadia(); estMenuBotoes(); estLista();
 }
-
-function adicionarItemAvulso() {
-  const data = document.getElementById('avulsoData').value;
-  const refeicao = document.getElementById('avulsoRefeicao').value;
-  const horario = document.getElementById('avulsoHorario').value;
-  if (!data) { alert('Informe a data da refeição avulsa.'); return; }
-  const resultado = inserirNoPlano(data, refeicao, horario);
-  renderPlanoLista();
-  mostrarPlanoMsg(resultado === 'adicionado'
-    ? `✓ ${refeicao} de ${formatDataBR(data)} adicionada ao plano.`
-    : `${refeicao} de ${formatDataBR(data)} já estava no plano — horário atualizado.`);
+function estSugerirRestricao() {
+  const t = Array.from(document.querySelectorAll('.chkTipoRestricao:checked')).map(e => e.value.toLowerCase()).join(' | ');
+  if (t.includes('celíaca') || t.includes('glúten')) return 'Sem glúten';
+  if (t.includes('lactose') || t.includes('leite')) return 'Sem lactose';
+  if (t.includes('vegan') || t.includes('vegetar')) return 'Vegano';
+  return null;
 }
-
-function removerItemPlano(i) {
-  planoRefeicoes.splice(i, 1);
-  renderPlanoLista();
+function estAba(a) {
+  document.getElementById('estPaneMenu').style.display = a === 'menu' ? 'block' : 'none';
+  document.getElementById('estPaneLivre').style.display = a === 'livre' ? 'block' : 'none';
+  document.getElementById('estTabMenu').className = 'pill' + (a === 'menu' ? ' on' : '');
+  document.getElementById('estTabLivre').className = 'pill' + (a === 'livre' ? ' on' : '');
+}
+function estMenuBotoes() {
+  document.getElementById('estRest').innerHTML = Object.keys(MENU_RESTRITIVO).map(r => '<button type="button" class="pill' + (r === menuRest ? ' on' : '') + '" data-r="' + r + '">' + r + '</button>').join('');
+  document.getElementById('estCats').innerHTML = Object.keys(MENU_CATS).map(c => '<button type="button" class="pill' + (c === menuCat ? ' on' : '') + '" data-c="' + c + '">' + MENU_CATS[c] + '</button>').join('');
+  document.querySelectorAll('#estRest .pill').forEach(b => b.onclick = () => { menuRest = b.dataset.r; estMenuBotoes(); estLista(); });
+  document.querySelectorAll('#estCats .pill').forEach(b => b.onclick = () => { menuCat = b.dataset.c; estMenuBotoes(); estLista(); });
+}
+function estLista() {
+  const t = document.getElementById('estBusca').value.toLowerCase().trim();
+  const itens = (MENU_RESTRITIVO[menuRest][menuCat] || []).filter(x => x.toLowerCase().includes(t));
+  const box = document.getElementById('estLista');
+  box.innerHTML = itens.map((x, i) => {
+    const p = x.split('::');
+    return '<div class="est-it" data-i="' + i + '">' + escapeHtml(p[0]) + (p[1] ? '<small>' + escapeHtml(p[1]) + '</small>' : '') + '</div>';
+  }).join('') || '<div class="est-it muted">Nada encontrado neste grupo. Use "Escrever prato".</div>';
+  box.querySelectorAll('.est-it[data-i]').forEach(el => el.onclick = () => {
+    const p = itens[+el.dataset.i].split('::');
+    estAplicar(p[0] + (p[1] ? ' (' + p[1] + ')' : ''));
+  });
+}
+function estAplicar(prato) {
+  const chaves = Object.keys(estSel), msg = document.getElementById('estMsg');
+  if (!chaves.length) { msg.textContent = 'Selecione ao menos uma casa na grade antes de escolher o prato.'; return; }
+  const hora = document.getElementById('estHora').value;
+  chaves.forEach(k => {
+    const ref = k.split('|')[1], def = REFEICOES_DEF.find(r => r.nome === ref);
+    estCelulas[k] = { prato, horario: hora || (def ? def.horaPadrao : '') };
+  });
+  estSel = {};
+  document.getElementById('estSelInfo').textContent = 'Prato aplicado a ' + chaves.length + ' casa(s). Selecione outras para continuar.';
+  msg.textContent = '';
+  desenharEstadia();
+}
+function estUsarTexto() {
+  const t = document.getElementById('estTexto').value.trim();
+  if (!t) { document.getElementById('estMsg').textContent = 'Escreva o prato antes de aplicar.'; return; }
+  estAplicar(t);
+  document.getElementById('estTexto').value = '';
 }
 
 // ---------- Ponto da carne (chip rápido que escreve na Observação) ----------
@@ -1325,7 +1330,13 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
   const origemSel = document.getElementById('fOrigem').value;
   const origemFinal = origemSel === 'Outro' ? document.getElementById('fOrigemOutro').value.trim() : origemSel;
 
-  if (planoRefeicoes.length === 0) { msg.textContent = 'Adicione ao menos uma refeição ao plano.'; return; }
+  const itens = Object.keys(estCelulas).map(k => {
+    const p = k.split('|');
+    return { data: p[0], refeicao: p[1], horario: estCelulas[k].horario, prato: estCelulas[k].prato };
+  });
+  if (itens.length === 0) { msg.textContent = 'Defina o prato de ao menos uma refeição na grade.'; return; }
+  const faltam = estDias().length * REFEICOES_DEF.length - itens.length;
+  if (faltam > 0 && !confirm('Ainda faltam ' + faltam + ' refeição(ões) sem prato na estadia. Lançar mesmo assim?')) return;
   if (!tipoFinal) { msg.textContent = 'Selecione ao menos um tipo de restrição.'; return; }
   if (!origemFinal) { msg.textContent = 'Informe a origem do hóspede.'; return; }
 
@@ -1336,8 +1347,8 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
     reserva: document.getElementById('fReserva').value.trim(),
     origem: origemFinal,
     tipo_restricao: tipoFinal,
-    prato: document.getElementById('fPrato').value.trim(),
-    itens: planoRefeicoes,
+    prato: itens[0].prato,
+    itens: itens,
     nutri_responsavel: currentUser.nome,
     observacoes: document.getElementById('fObservacoes').value.trim()
   };
@@ -1351,11 +1362,10 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
     document.getElementById('campoOutraRestricao').style.display = 'none';
     document.getElementById('campoOutraOrigem').style.display = 'none';
     document.querySelectorAll('#pontoCarneChips .chip-ponto').forEach(b => b.classList.remove('ativo'));
-    planoRefeicoes = [];
-    renderPlanoLista();
-    document.getElementById('planoData').value = hojeISO();
-    document.getElementById('avulsoData').value = hojeISO();
-    atualizarPreviewPlano();
+    estCelulas = {}; estSel = {};
+    document.getElementById('eEntrada').value = hojeISO();
+    document.getElementById('eSaida').value = hojeISO();
+    desenharEstadia();
   } else {
     msg.style.color = 'var(--vermelho)';
     msg.textContent = r.error || 'Erro ao lançar pedido.';
