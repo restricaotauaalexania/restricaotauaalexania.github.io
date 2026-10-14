@@ -323,6 +323,33 @@
   #printArea .pr-box { width: 6mm; height: 6mm; border: 1px solid #000; display: inline-block; }
   #printArea .pr-ok { text-decoration: line-through; color: #555; }
 }
+/* ---- Tema colorido e animado ---- */
+body{background:linear-gradient(160deg,#e8f5ee 0%,#fdf3e3 45%,#e6eef8 100%) fixed;}
+header{background:linear-gradient(120deg,#155940,#1f7a5c,#2c9aa6,#1f7a5c,#155940);background-size:300% 100%;animation:hdrMove 14s ease-in-out infinite;box-shadow:0 4px 16px rgba(21,89,64,.25);}
+@keyframes hdrMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+header h1{letter-spacing:.3px;text-shadow:0 1px 2px rgba(0,0,0,.2);}
+nav{background:rgba(255,255,255,.75);backdrop-filter:blur(6px);}
+.view.active{animation:viewIn .4s ease;}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.topbar h2{display:inline-block;padding-bottom:4px;background:linear-gradient(90deg,var(--laranja),var(--amarelo)) 0 100%/60% 3px no-repeat;}
+form.card,.card{border-radius:14px;box-shadow:0 6px 22px rgba(21,89,64,.10);border:1px solid rgba(31,122,92,.12);}
+.form-secao{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:14px;border-left:5px solid var(--verde);box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .2s ease,box-shadow .2s ease;}
+.form-secao:nth-of-type(2){border-left-color:var(--laranja);}
+.form-secao:nth-of-type(3){border-left-color:var(--azul);}
+.form-secao:nth-of-type(4){border-left-color:var(--roxo);}
+.form-secao:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.09);}
+.form-secao h4 .num{background:linear-gradient(135deg,var(--laranja),var(--amarelo));color:#fff;}
+button.primary{background:linear-gradient(135deg,var(--verde),#2c9aa6);transition:transform .15s ease,box-shadow .2s ease;box-shadow:0 3px 10px rgba(31,122,92,.3);}
+button.primary:hover{background:linear-gradient(135deg,var(--verde-escuro),var(--verde));transform:translateY(-2px);box-shadow:0 8px 18px rgba(31,122,92,.38);}
+button.primary:active{transform:scale(.97);}
+button.secondary:hover{background:var(--verde-claro);border-color:var(--verde);}
+.coluna-refeicao{background:rgba(255,255,255,.55);border-radius:12px;padding:10px;}
+.coluna-refeicao h3{box-shadow:0 3px 8px rgba(0,0,0,.15);}
+.visual-toggle button{transition:transform .15s ease,background .2s ease;}
+.visual-toggle button:hover{transform:translateY(-2px);}
+.visual-toggle button.active{background:linear-gradient(135deg,var(--verde),#2c9aa6);color:#fff;border-color:var(--verde);}
+.est-c.ok{animation:estPop .35s ease;}
+@keyframes estPop{0%{transform:scale(.85)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -362,6 +389,12 @@
     <div class="painel-subnav" id="painelSubnav">
       <button data-sub="pendentes" class="active" onclick="setPainelSubview('pendentes')">Pendentes</button>
       <button data-sub="prontos" onclick="setPainelSubview('prontos')">Entregues do dia</button>
+    </div>
+    <div class="visual-toggle" id="periodoToggle">
+      <span class="vt-label">Período:</span>
+      <button data-p="1" onclick="setPainelDias(1)">📅 Hoje</button>
+      <button data-p="2" onclick="setPainelDias(2)">Hoje + amanhã</button>
+      <button data-p="3" onclick="setPainelDias(3)">Hoje + 2 dias</button>
     </div>
     <div class="visual-toggle">
       <span class="vt-label">Ver como:</span>
@@ -439,6 +472,7 @@
         <div class="muted" style="margin:8px 0 12px;font-size:13px;">Toque nas casas para selecionar uma ou várias (mesmo prato para todas). Amarelo piscando = falta preencher. Verde = prato definido.</div>
         <div class="est-painel">
           <div id="estSelInfo" class="est-selinfo">Selecione uma ou mais casas acima</div>
+          <div class="est-abas" style="margin-bottom:6px;"><button type="button" class="secondary small" onclick="estSoHorario()">Alterar só o horário</button><button type="button" class="secondary small" onclick="estLimpar()">Limpar casas selecionadas</button></div>
           <div class="est-abas">
             <button type="button" class="pill on" id="estTabMenu" onclick="estAba('menu')">Consultar menu</button>
             <button type="button" class="pill" id="estTabLivre" onclick="estAba('livre')">Escrever prato</button>
@@ -675,6 +709,30 @@ let painelSubview = 'pendentes';
 let painelFoco = true; // true = mostra só a refeição do horário atual (mais espaço); false = mostra todos os serviços
 let painelVisual = localStorage.getItem('painelVisualPref') || 'colunas'; // 'colunas' | 'mosaico' | 'tabela'
 let mosaicoAberto = null; // id do pedido expandido no modo mosaico
+let painelDias = parseInt(localStorage.getItem('painelDiasPref') || '1', 10) || 1; // 1 = hoje, 2 = hoje + amanhã, 3 = hoje + 2 dias
+function setPainelDias(n) {
+  painelDias = n;
+  localStorage.setItem('painelDiasPref', String(n));
+  mosaicoAberto = null;
+  carregarPainel();
+}
+function atualizarBtnsPeriodo() {
+  document.querySelectorAll('#periodoToggle button[data-p]').forEach(b => b.classList.toggle('active', +b.dataset.p === painelDias));
+}
+function diasPeriodoISO() {
+  const b = new Date(), out = [];
+  for (let i = 0; i < painelDias; i++) out.push(dataISO(new Date(b.getFullYear(), b.getMonth(), b.getDate() + i)));
+  return out;
+}
+function ordemDiaHora(a, b) {
+  return String(a.data || '').localeCompare(String(b.data || '')) || String(a.horario_entrega || '').localeCompare(String(b.horario_entrega || ''));
+}
+function diaCurto(p) {
+  const d = new Date(String(p.data) + 'T00:00:00');
+  return isNaN(d) ? '' : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleDateString('pt-BR', { weekday: 'short' });
+}
+function renderDiaTag(p) { return painelDias > 1 ? '<span class="tag" style="background:#e8eef6;color:#2c5f8a;">📅 ' + escapeHtml(diaCurto(p)) + '</span>' : ''; }
+function diaPrefixo(p) { return painelDias > 1 ? '<b>' + escapeHtml(diaCurto(p)) + '</b> · ' : ''; }
 
 // ---------- Definição única das 5 refeições (usada no formulário, no painel e nas janelas de horário) ----------
 const REFEICOES_DEF = [
@@ -772,7 +830,7 @@ function renderMosaico(lista, tipo, vinculos) {
       ${temRest ? '<span class="rest-dot">⚠️</span>' : ''}
       <span class="apto-num">${escapeHtml(p.apartamento || '—')}</span>
       <span class="apto-nome">${escapeHtml(String(p.hospede || '').split(' ')[0])}</span>
-      <span class="apto-ref">${escapeHtml(p.refeicao || '')}</span>
+      <span class="apto-ref">${painelDias > 1 ? escapeHtml(diaCurto(p)) + ' · ' : ''}${escapeHtml(p.refeicao || '')}</span>
     </div>`;
   }).join('') + '</div>';
   html += `<div class="mosaico-legenda">
@@ -791,7 +849,7 @@ function renderMosaico(lista, tipo, vinculos) {
 
 function renderTabelaPainel(lista, tipo) {
   if (lista.length === 0) return '<div class="empty">Nada por aqui.</div>';
-  const ordenado = [...lista].sort((a, b) => String(a.horario_entrega || '').localeCompare(String(b.horario_entrega || '')));
+  const ordenado = [...lista].sort(ordemDiaHora);
   return `<div class="tabela-painel-wrap"><table class="tabela-painel"><thead><tr>
     <th>Apto</th><th>Hóspede</th><th>Refeição</th><th>Restrição</th><th>Prato</th><th>Horário</th><th>Status</th>
   </tr></thead><tbody>` + ordenado.map(p => {
@@ -799,7 +857,7 @@ function renderTabelaPainel(lista, tipo) {
     return `<tr>
       <td><b>${escapeHtml(p.apartamento || '—')}</b></td>
       <td>${escapeHtml(p.hospede)}</td>
-      <td>${escapeHtml(p.refeicao)}</td>
+      <td>${diaPrefixo(p)}${escapeHtml(p.refeicao)}</td>
       <td>${p.tipo_restricao ? '⚠️ ' + escapeHtml(p.tipo_restricao) : '—'}</td>
       <td>${escapeHtml(p.prato || '—')}</td>
       <td>${escapeHtml(p.horario_entrega || '—')}</td>
@@ -815,11 +873,14 @@ function setPainelSubview(v) {
 }
 
 async function carregarPainel() {
-  document.getElementById('dataHojeLabel').textContent = new Date().toLocaleDateString('pt-BR');
+  const dsP = diasPeriodoISO();
+  document.getElementById('dataHojeLabel').textContent = painelDias === 1 ? new Date().toLocaleDateString('pt-BR') : formatDataBR(dsP[0]).slice(0, 5) + ' a ' + formatDataBR(dsP[dsP.length - 1]).slice(0, 5);
+  atualizarBtnsPeriodo();
   const grid = document.getElementById('painelGrid');
   grid.innerHTML = '<div class="empty">Carregando...</div>';
   try {
-    pedidosPainelAtual = await apiGet('listPedidos', { data: hojeISO() });
+    const lotes = await Promise.all(diasPeriodoISO().map(d => apiGet('listPedidos', { data: d })));
+    pedidosPainelAtual = [].concat(...lotes.map(l => Array.isArray(l) ? l : []));
   } catch (e) {
     grid.innerHTML = '<div class="empty">Não foi possível carregar. Verifique a conexão / URL do backend.</div>';
     return;
@@ -838,8 +899,11 @@ function imprimirDemanda() {
   let html = '<h1>Demanda da Cozinha — Restrições Alimentares</h1>' +
     '<div class="pr-sub">Tauá Alexânia · ' + agora.toLocaleDateString('pt-BR') + ' · impresso às ' +
     agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + ' · ' + pedidos.length + ' pedido(s)</div>';
+  const diasP = [...new Set(pedidos.map(p => p.data))].sort();
+  diasP.forEach(dia => {
+  if (diasP.length > 1) html += '<h1 style="font-size:15pt;margin:8mm 0 0;border-bottom:2px solid #000;">' + formatDataBR(dia) + '</h1>';
   REFEICOES_DEF.forEach(r => {
-    const itens = pedidos.filter(p => p.refeicao === r.nome)
+    const itens = pedidos.filter(p => p.data === dia && p.refeicao === r.nome)
       .sort((a, b) => String(a.horario_entrega || '').localeCompare(String(b.horario_entrega || '')));
     if (!itens.length) return;
     html += '<h2>' + escapeHtml(r.nome) + ' (' + itens.length + ')</h2>' +
@@ -855,17 +919,18 @@ function imprimirDemanda() {
     });
     html += '</tbody></table>';
   });
+  });
   area.innerHTML = html;
   window.print();
 }
 
 function renderPainel() {
   const grid = document.getElementById('painelGrid');
-  grid.className = 'refeicoes-grid' + (painelFoco && painelVisual === 'colunas' ? ' foco' : '');
+  grid.className = 'refeicoes-grid' + (painelFoco && painelDias === 1 && painelVisual === 'colunas' ? ' foco' : '');
   atualizarTurnoBadge();
   atualizarBtnFoco();
   atualizarBtnsVisual();
-  document.getElementById('btnPainelFoco').style.display = painelVisual === 'colunas' ? '' : 'none';
+  document.getElementById('btnPainelFoco').style.display = painelVisual === 'colunas' && painelDias === 1 ? '' : 'none';
   if (painelSubview === 'pendentes') renderPainelPendentes(grid);
   else renderPainelProntos(grid);
 }
@@ -1001,6 +1066,7 @@ function renderObsBadge(observacoes) {
 // ainda está pendente (ainda não foi marcado como entregue).
 function renderAtrasoTag(p) {
   if (!p.horario_entrega) return '';
+  if (p.data && String(p.data) > hojeISO()) return '';
   const agora = new Date();
   const hhmm = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
   if (hhmm > p.horario_entrega) return `<span class="atraso-tag">⏰ Atrasado</span>`;
@@ -1014,6 +1080,7 @@ function templateCardPendente(p, vinculos) {
         <div class="nome">${escapeHtml(p.hospede)}</div>
         ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
       </div>
+      ${renderDiaTag(p)}
       ${renderRestricaoAlerta(p.tipo_restricao)}
       ${renderPratoDestaque(p.prato)}
       ${renderObsBadge(p.observacoes)}
@@ -1031,7 +1098,7 @@ function templateCardPronto(p, vinculos) {
         <div class="nome">${escapeHtml(p.hospede)}</div>
         ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
       </div>
-      <span class="tag">${escapeHtml(p.refeicao)}</span>
+      <span class="tag">${escapeHtml(p.refeicao)}</span>${renderDiaTag(p)}
       ${renderRestricaoAlerta(p.tipo_restricao)}
       ${renderPratoDestaque(p.prato)}
       ${renderObsBadge(p.observacoes)}
@@ -1044,12 +1111,12 @@ function templateCardPronto(p, vinculos) {
 
 function renderPainelPendentes(grid) {
   const vinculos = calcularVinculos(pedidosPainelAtual);
-  const pendentes = pedidosPainelAtual.filter(p => p.entregue !== 'Sim');
+  const pendentes = pedidosPainelAtual.filter(p => p.entregue !== 'Sim').sort(ordemDiaHora);
 
   if (painelVisual === 'mosaico') { grid.innerHTML = renderMosaico(pendentes, 'pendente', vinculos); return; }
   if (painelVisual === 'tabela') { grid.innerHTML = renderTabelaPainel(pendentes, 'pendente'); return; }
 
-  if (painelFoco) {
+  if (painelFoco && painelDias === 1) {
     const turno = turnoAtual();
     const itens = pendentes.filter(p => p.refeicao === turno);
     grid.innerHTML = `
@@ -1087,7 +1154,7 @@ function renderPainelProntos(grid) {
   if (painelVisual === 'mosaico') { grid.innerHTML = renderMosaico(entregues, 'entregue', vinculos); return; }
   if (painelVisual === 'tabela') { grid.innerHTML = renderTabelaPainel(entregues, 'entregue'); return; }
 
-  if (painelFoco) {
+  if (painelFoco && painelDias === 1) {
     const turno = turnoAtual();
     entregues = entregues.filter(p => p.refeicao === turno);
     // Mais recém-entregue primeiro — é o que a cozinha quer ver no topo.
@@ -1219,7 +1286,7 @@ function desenharEstadia() {
     REFEICOES_DEF.forEach(r => {
       const k = estChave(iso, r.nome), c = estCelulas[k];
       if (c) ok++;
-      h += '<div class="est-c' + (c ? ' ok' : '') + (estSel[k] ? ' sel' : '') + '" data-k="' + k + '" title="' + escapeHtml(c ? c.prato : 'Falta definir') + '">' + (c ? escapeHtml(c.prato.length > 34 ? c.prato.slice(0, 33) + '…' : c.prato) : 'falta') + '</div>';
+      h += '<div class="est-c' + (c ? ' ok' : '') + (estSel[k] ? ' sel' : '') + '" data-k="' + k + '" title="' + escapeHtml(c ? c.prato : 'Falta definir') + '">' + (c ? '<span><b>' + escapeHtml(c.horario || '') + '</b><br>' + escapeHtml(c.prato.length > 30 ? c.prato.slice(0, 29) + '…' : c.prato) + '</span>' : 'falta') + '</div>';
     });
   });
   grid.innerHTML = h;
@@ -1231,7 +1298,9 @@ function desenharEstadia() {
 function estToggle(k) {
   if (estSel[k]) delete estSel[k]; else estSel[k] = 1;
   const chaves = Object.keys(estSel), n = chaves.length;
-  document.getElementById('estSelInfo').textContent = n ? n + ' casa(s) selecionada(s)' : 'Selecione uma ou mais casas acima';
+  const c0 = n ? estCelulas[chaves[0]] : null;
+  document.getElementById('estSelInfo').textContent = n ? n + ' casa(s) selecionada(s)' + (c0 ? ' — atual: ' + c0.prato.slice(0, 45) + ' às ' + c0.horario : '') : 'Selecione uma ou mais casas acima';
+  document.getElementById('estHora').value = c0 ? (c0.horario || '') : '';
   if (n) {
     const ref = chaves[0].split('|')[1];
     menuCat = GRUPO_SERVICO[ref] || 'caf';
@@ -1276,12 +1345,44 @@ function estAplicar(prato) {
   const chaves = Object.keys(estSel), msg = document.getElementById('estMsg');
   if (!chaves.length) { msg.textContent = 'Selecione ao menos uma casa na grade antes de escolher o prato.'; return; }
   const hora = document.getElementById('estHora').value;
+  if (hora && !estConfirmaFaixa(chaves, hora)) return;
   chaves.forEach(k => {
     const ref = k.split('|')[1], def = REFEICOES_DEF.find(r => r.nome === ref);
     estCelulas[k] = { prato, horario: hora || (def ? def.horaPadrao : '') };
   });
   estSel = {};
   document.getElementById('estSelInfo').textContent = 'Prato aplicado a ' + chaves.length + ' casa(s). Selecione outras para continuar.';
+  msg.textContent = '';
+  desenharEstadia();
+}
+function estConfirmaFaixa(chaves, hora) {
+  const p = hora.split(':'), min = +p[0] * 60 + +p[1], fora = [];
+  new Set(chaves.map(k => k.split('|')[1])).forEach(ref => {
+    const d = REFEICOES_DEF.find(r => r.nome === ref);
+    if (!d) return;
+    const dentro = d.inicioMin <= d.fimMin ? (min >= d.inicioMin && min <= d.fimMin) : (min >= d.inicioMin || min <= d.fimMin);
+    if (!dentro) fora.push(ref + ' (' + d.faixa + ')');
+  });
+  return fora.length === 0 || confirm('O horário ' + hora + ' está fora da faixa de: ' + fora.join(', ') + '. Usar mesmo assim?');
+}
+function estSoHorario() {
+  const chaves = Object.keys(estSel).filter(k => estCelulas[k]), msg = document.getElementById('estMsg');
+  const hora = document.getElementById('estHora').value;
+  if (!chaves.length) { msg.textContent = 'Selecione casas que já têm prato para alterar o horário.'; return; }
+  if (!hora) { msg.textContent = 'Informe o novo horário.'; return; }
+  if (!estConfirmaFaixa(chaves, hora)) return;
+  chaves.forEach(k => { estCelulas[k].horario = hora; });
+  estSel = {};
+  document.getElementById('estSelInfo').textContent = 'Horário alterado em ' + chaves.length + ' casa(s).';
+  msg.textContent = '';
+  desenharEstadia();
+}
+function estLimpar() {
+  const chaves = Object.keys(estSel), msg = document.getElementById('estMsg');
+  if (!chaves.length) { msg.textContent = 'Selecione as casas que deseja limpar.'; return; }
+  chaves.forEach(k => { delete estCelulas[k]; });
+  estSel = {};
+  document.getElementById('estSelInfo').textContent = chaves.length + ' casa(s) limpa(s). Escolha o prato de novo.';
   msg.textContent = '';
   desenharEstadia();
 }
@@ -1313,6 +1414,28 @@ function alternarPontoCarne(btn) {
     texto = texto ? texto + '\n' + ponto : ponto;
   }
   textarea.value = texto;
+}
+
+let ultimaOrdem = null;
+function imprimirOrdem() {
+  if (!ultimaOrdem) return;
+  const o = ultimaOrdem, p = o.p;
+  let area = document.getElementById('printArea');
+  if (!area) { area = document.createElement('div'); area.id = 'printArea'; document.body.appendChild(area); }
+  const agora = new Date();
+  let html = '<h1>Ordem de Serviço — Restrição Alimentar</h1><div class="pr-sub">Tauá Alexânia · emitida em ' + agora.toLocaleDateString('pt-BR') + ' ' +
+    agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + ' · Nutri: ' + escapeHtml(p.nutri_responsavel || '') + '</div>' +
+    '<table><tbody>' +
+    '<tr><th>Hóspede</th><td>' + escapeHtml(p.hospede) + '</td><th>Apto</th><td>' + escapeHtml(p.apartamento) + '</td></tr>' +
+    '<tr><th>Estadia</th><td>' + escapeHtml(formatDataBR(o.entrada)) + ' a ' + escapeHtml(formatDataBR(o.saida)) + '</td><th>Reserva</th><td>' + escapeHtml(p.reserva || '') + '</td></tr>' +
+    '<tr><th>Restrição</th><td colspan="3"><b>' + escapeHtml(p.tipo_restricao) + '</b></td></tr>' +
+    '<tr><th>Observações</th><td colspan="3">' + escapeHtml(p.observacoes || '') + '</td></tr></tbody></table>' +
+    '<h2>Refeições solicitadas</h2><table><thead><tr><th>Dia</th><th>Serviço</th><th>Horário</th><th>Prato</th></tr></thead><tbody>';
+  p.itens.slice().sort((a, b) => (a.data + a.horario).localeCompare(b.data + b.horario)).forEach(i => {
+    html += '<tr><td>' + escapeHtml(formatDataBR(i.data)) + '</td><td>' + escapeHtml(i.refeicao) + '</td><td>' + escapeHtml(i.horario || '') + '</td><td class="pr-prato">' + escapeHtml(i.prato) + '</td></tr>';
+  });
+  area.innerHTML = html + '</tbody></table>';
+  window.print();
 }
 
 document.getElementById('formSolicitar').addEventListener('submit', async (e) => {
@@ -1355,8 +1478,9 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
 
   const r = await apiPost('createPedido', payload);
   if (r.ok) {
+    ultimaOrdem = { p: payload, entrada: document.getElementById('eEntrada').value, saida: document.getElementById('eSaida').value };
     msg.style.color = 'var(--verde-escuro)';
-    msg.textContent = 'Pedido lançado com sucesso! ' + r.linhas_criadas + ' refeição(ões) programada(s).';
+    msg.innerHTML = 'Pedido lançado com sucesso! ' + r.linhas_criadas + ' refeição(ões) enviada(s) à cozinha. <button type="button" class="primary" onclick="imprimirOrdem()">🖨️ Imprimir ordem de serviço</button>';
     document.getElementById('formSolicitar').reset();
     document.getElementById('nutriResponsavel').value = currentUser.nome;
     document.getElementById('campoOutraRestricao').style.display = 'none';
