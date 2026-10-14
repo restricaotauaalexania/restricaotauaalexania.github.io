@@ -350,6 +350,55 @@ button.secondary:hover{background:var(--verde-claro);border-color:var(--verde);}
 .visual-toggle button.active{background:linear-gradient(135deg,var(--verde),#2c9aa6);color:#fff;border-color:var(--verde);}
 .est-c.ok{animation:estPop .35s ease;}
 @keyframes estPop{0%{transform:scale(.85)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+.est-hora-box{background:#fff7e0;border:2px solid var(--laranja);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.est-hora-box label{font-weight:800;font-size:16px;color:#8a4b00;}
+.est-hora-box label span{font-weight:500;font-size:12px;color:#a66;margin-left:4px;}
+.est-hora-box input{font-size:24px;font-weight:800;padding:6px 10px;width:150px;border:2px solid var(--laranja);border-radius:10px;}
+.est-hora-box input:invalid{animation:horaPisca 1.2s ease-in-out infinite;}
+@keyframes horaPisca{0%,100%{box-shadow:0 0 0 0 rgba(240,140,0,.55)}50%{box-shadow:0 0 0 6px rgba(240,140,0,0)}}
+.ord-rec{margin-top:18px;}
+.ord-rec h3{margin:0 0 8px;}
+.ord-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border-left:5px solid var(--verde);border-radius:10px;padding:8px 12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.ord-item .oi-t{flex:1;min-width:200px;}
+.ord-item .oi-t small{display:block;color:#666;}
+/* Ordem de serviço (impressão) */
+#printArea, #printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+#printArea .os{font-family:Arial,Helvetica,sans-serif;color:#111;}
+#printArea .os-top{display:flex;justify-content:space-between;align-items:flex-end;background:#0e3b2e;color:#fff;padding:5mm 6mm;border-radius:3mm 3mm 0 0;}
+#printArea .os-k{font-size:9pt;letter-spacing:3px;color:#9fe3c5;}
+#printArea .os-t{font-size:20pt;font-weight:900;line-height:1.1;}
+#printArea .os-n{text-align:right;font-size:8.5pt;line-height:1.4;color:#cfeee0;}
+#printArea .os-id{display:flex;border:2px solid #0e3b2e;border-top:0;}
+#printArea .os-apto{background:#f5c400;padding:3mm 7mm;text-align:center;min-width:42mm;border-right:2px solid #0e3b2e;}
+#printArea .os-apto small,#printArea .os-hosp small{display:block;font-size:8pt;letter-spacing:2px;font-weight:700;}
+#printArea .os-apto b{font-size:40pt;line-height:1;font-weight:900;}
+#printArea .os-hosp{padding:3mm 6mm;flex:1;}
+#printArea .os-hosp b{display:block;font-size:22pt;font-weight:900;line-height:1.1;margin-top:1mm;}
+#printArea .os-hosp span{font-size:9pt;color:#444;}
+#printArea .os-faixa{height:5mm;background:repeating-linear-gradient(-45deg,#111 0 4mm,#f5c400 4mm 8mm);}
+#printArea .os-alerta{background:#c0141c;color:#fff;padding:3mm 6mm;display:flex;align-items:baseline;gap:5mm;}
+#printArea .os-alerta span{font-size:9pt;letter-spacing:2px;font-weight:700;white-space:nowrap;}
+#printArea .os-alerta b{font-size:26pt;font-weight:900;text-transform:uppercase;line-height:1.1;}
+#printArea .os-estadia{display:flex;gap:3mm;flex-wrap:wrap;margin:4mm 0 2mm;font-size:10pt;}
+#printArea .os-chip{border:2px solid #0e3b2e;border-radius:20mm;padding:1mm 4mm;font-weight:700;}
+#printArea .os-chip.f{background:#0e3b2e;color:#fff;}
+#printArea .os-dia{margin-top:4mm;page-break-inside:avoid;}
+#printArea .os-dh{display:flex;align-items:center;gap:3mm;margin-bottom:2mm;}
+#printArea .os-dh b{background:#0e3b2e;color:#fff;font-size:13pt;padding:1mm 5mm;border-radius:20mm;text-transform:uppercase;letter-spacing:1px;}
+#printArea .os-dh span{font-size:10pt;color:#444;}
+#printArea .os-dh i{flex:1;border-top:2px dotted #0e3b2e;}
+#printArea .os-card{display:flex;align-items:stretch;border:1.5px solid #0e3b2e;border-radius:3mm;margin-bottom:2.5mm;overflow:hidden;page-break-inside:avoid;}
+#printArea .os-h{background:#f08c00;color:#111;font-size:21pt;font-weight:900;padding:2mm 4mm;display:flex;align-items:center;min-width:30mm;justify-content:center;}
+#printArea .os-b{flex:1;padding:2mm 4mm;}
+#printArea .os-s{font-size:9pt;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#0e3b2e;}
+#printArea .os-p{font-size:14pt;font-weight:900;line-height:1.2;margin-top:.5mm;}
+#printArea .os-ck{display:flex;flex-direction:column;justify-content:center;gap:1.5mm;padding:2mm 4mm;border-left:1.5px dashed #0e3b2e;font-size:8.5pt;}
+#printArea .os-ck u{display:inline-block;width:4.5mm;height:4.5mm;border:1.5px solid #111;margin-right:1.5mm;text-decoration:none;vertical-align:middle;}
+#printArea .os-obs{margin-top:4mm;border:2px dashed #c0141c;border-radius:3mm;padding:3mm 5mm;min-height:14mm;}
+#printArea .os-obs small{display:block;font-size:8pt;letter-spacing:2px;font-weight:700;color:#c0141c;}
+#printArea .os-ass{display:flex;gap:8mm;margin-top:12mm;}
+#printArea .os-ass div{flex:1;border-top:1.5px solid #111;padding-top:1mm;font-size:8.5pt;text-align:center;}
 </style>
 </head>
 <body>
@@ -472,12 +521,11 @@ button.secondary:hover{background:var(--verde-claro);border-color:var(--verde);}
         <div class="muted" style="margin:8px 0 12px;font-size:13px;">Toque nas casas para selecionar uma ou várias (mesmo prato para todas). Amarelo piscando = falta preencher. Verde = prato definido.</div>
         <div class="est-painel">
           <div id="estSelInfo" class="est-selinfo">Selecione uma ou mais casas acima</div>
+          <div class="est-hora-box"><label for="estHora">① Horário da refeição <b>*</b> <span>preencha primeiro</span></label><input type="time" id="estHora" required></div>
           <div class="est-abas" style="margin-bottom:6px;"><button type="button" class="secondary small" onclick="estSoHorario()">Alterar só o horário</button><button type="button" class="secondary small" onclick="estLimpar()">Limpar casas selecionadas</button></div>
           <div class="est-abas">
             <button type="button" class="pill on" id="estTabMenu" onclick="estAba('menu')">Consultar menu</button>
             <button type="button" class="pill" id="estTabLivre" onclick="estAba('livre')">Escrever prato</button>
-            <span class="muted" style="margin-left:auto;font-size:13px;">Horário (opcional)</span>
-            <input type="time" id="estHora" style="width:110px;">
           </div>
           <div id="estPaneMenu">
             <div class="est-pills" id="estRest"></div>
@@ -510,6 +558,7 @@ button.secondary:hover{background:var(--verde-claro);border-color:var(--verde);}
         <button type="submit" class="primary btn-lancar">Lançar pedido</button>
       </div>
     </form>
+    <div class="ord-rec" id="ordensRecentes"></div>
   </section>
 
   <!-- GERENCIAR ENTREGAS -->
@@ -1322,16 +1371,37 @@ function estAba(a) {
   document.getElementById('estTabMenu').className = 'pill' + (a === 'menu' ? ' on' : '');
   document.getElementById('estTabLivre').className = 'pill' + (a === 'livre' ? ' on' : '');
 }
+function estRestricoesPermitidas() {
+  const t = Array.from(document.querySelectorAll('.chkTipoRestricao:checked')).map(e => e.value.toLowerCase()).join(' | '), a = [];
+  if (t.includes('celíaca') || t.includes('glúten')) a.push('Sem glúten');
+  if (t.includes('lactose') || t.includes('leite')) a.push('Sem lactose');
+  if (t.includes('vegan') || t.includes('vegetar')) a.push('Vegano');
+  return a;
+}
+function estOpcoesRest() { const p = estRestricoesPermitidas(); return p.length > 1 ? p.concat(['Todas juntas']) : p; }
+function estItensBase() {
+  const perm = estRestricoesPermitidas();
+  if (!perm.length) return null;
+  if (menuRest === 'Todas juntas') {
+    const sets = perm.map(r => MENU_RESTRITIVO[r][menuCat] || []);
+    return sets[0].filter(x => sets.every(st => st.some(y => y.split('::')[0] === x.split('::')[0])));
+  }
+  return (MENU_RESTRITIVO[menuRest] || {})[menuCat] || [];
+}
 function estMenuBotoes() {
-  document.getElementById('estRest').innerHTML = Object.keys(MENU_RESTRITIVO).map(r => '<button type="button" class="pill' + (r === menuRest ? ' on' : '') + '" data-r="' + r + '">' + r + '</button>').join('');
+  const opts = estOpcoesRest();
+  if (opts.length && !opts.includes(menuRest)) menuRest = opts[0];
+  document.getElementById('estRest').innerHTML = !opts.length ? '<span class="muted" style="font-size:13px;">Marque a restrição na seção 2 para ver só o cardápio correspondente.</span>' : opts.map(r => '<button type="button" class="pill' + (r === menuRest ? ' on' : '') + '" data-r="' + r + '">' + r + '</button>').join('');
   document.getElementById('estCats').innerHTML = Object.keys(MENU_CATS).map(c => '<button type="button" class="pill' + (c === menuCat ? ' on' : '') + '" data-c="' + c + '">' + MENU_CATS[c] + '</button>').join('');
   document.querySelectorAll('#estRest .pill').forEach(b => b.onclick = () => { menuRest = b.dataset.r; estMenuBotoes(); estLista(); });
   document.querySelectorAll('#estCats .pill').forEach(b => b.onclick = () => { menuCat = b.dataset.c; estMenuBotoes(); estLista(); });
 }
 function estLista() {
   const t = document.getElementById('estBusca').value.toLowerCase().trim();
-  const itens = (MENU_RESTRITIVO[menuRest][menuCat] || []).filter(x => x.toLowerCase().includes(t));
+  const base = estItensBase();
   const box = document.getElementById('estLista');
+  if (base === null) { box.innerHTML = '<div class="est-it muted">Esta restrição não tem cardápio pronto. Use "Escrever prato".</div>'; return; }
+  const itens = base.filter(x => x.toLowerCase().includes(t));
   box.innerHTML = itens.map((x, i) => {
     const p = x.split('::');
     return '<div class="est-it" data-i="' + i + '">' + escapeHtml(p[0]) + (p[1] ? '<small>' + escapeHtml(p[1]) + '</small>' : '') + '</div>';
@@ -1345,10 +1415,10 @@ function estAplicar(prato) {
   const chaves = Object.keys(estSel), msg = document.getElementById('estMsg');
   if (!chaves.length) { msg.textContent = 'Selecione ao menos uma casa na grade antes de escolher o prato.'; return; }
   const hora = document.getElementById('estHora').value;
-  if (hora && !estConfirmaFaixa(chaves, hora)) return;
+  if (!hora) { msg.textContent = 'Informe primeiro o horário da refeição (campo ① acima).'; document.getElementById('estHora').focus(); return; }
+  if (!estConfirmaFaixa(chaves, hora)) return;
   chaves.forEach(k => {
-    const ref = k.split('|')[1], def = REFEICOES_DEF.find(r => r.nome === ref);
-    estCelulas[k] = { prato, horario: hora || (def ? def.horaPadrao : '') };
+    estCelulas[k] = { prato, horario: hora };
   });
   estSel = {};
   document.getElementById('estSelInfo').textContent = 'Prato aplicado a ' + chaves.length + ' casa(s). Selecione outras para continuar.';
@@ -1417,26 +1487,65 @@ function alternarPontoCarne(btn) {
 }
 
 let ultimaOrdem = null;
+const ORD_KEY = 'ordensRecentes';
+const ICONE_SERV = { 'Café da Manhã': '☕', 'Lanche da Manhã': '🍎', 'Almoço': '🍽️', 'Lanche da Tarde': '🥪', 'Jantar': '🌙' };
+function ordensLer() { try { return JSON.parse(localStorage.getItem(ORD_KEY) || '[]'); } catch (e) { return []; } }
+function ordensSalvar(o) {
+  try { const l = ordensLer().filter(x => x.id !== o.id); l.unshift(o); localStorage.setItem(ORD_KEY, JSON.stringify(l.slice(0, 40))); } catch (e) {}
+  renderOrdensRecentes();
+}
+function renderOrdensRecentes() {
+  const box = document.getElementById('ordensRecentes');
+  if (!box) return;
+  const l = ordensLer();
+  if (!l.length) { box.innerHTML = ''; return; }
+  box.innerHTML = '<h3>📋 Ordens de serviço recentes</h3>' + l.map(o =>
+    '<div class="ord-item"><div class="oi-t"><b>' + escapeHtml(o.p.hospede) + '</b>' + (o.p.apartamento ? ' · Apto ' + escapeHtml(o.p.apartamento) : '') +
+    '<small>' + escapeHtml(o.id) + ' · ' + escapeHtml(formatDataBR(o.entrada)) + ' a ' + escapeHtml(formatDataBR(o.saida)) + ' · ' + escapeHtml(o.p.tipo_restricao) + '</small></div>' +
+    '<button type="button" class="primary small" onclick="reimprimirOrdem(\'' + o.id + '\')">🖨️ Imprimir</button>' +
+    '<button type="button" class="secondary small" onclick="corrigirOrdem(\'' + o.id + '\')">✏️ Corrigir refeições</button></div>').join('');
+}
+function reimprimirOrdem(id) { const o = ordensLer().find(x => x.id === id); if (!o) return; ultimaOrdem = o; imprimirOrdem(); }
+function corrigirOrdem(id) {
+  const o = ordensLer().find(x => x.id === id); if (!o) return;
+  const d = o.p.itens.map(i => i.data).sort()[0];
+  document.getElementById('filtroDataEntregas').value = d;
+  showView('entregas');
+  if (currentUser) carregarEntregas();
+}
 function imprimirOrdem() {
   if (!ultimaOrdem) return;
   const o = ultimaOrdem, p = o.p;
   let area = document.getElementById('printArea');
   if (!area) { area = document.createElement('div'); area.id = 'printArea'; document.body.appendChild(area); }
-  const agora = new Date();
-  let html = '<h1>Ordem de Serviço — Restrição Alimentar</h1><div class="pr-sub">Tauá Alexânia · emitida em ' + agora.toLocaleDateString('pt-BR') + ' ' +
-    agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + ' · Nutri: ' + escapeHtml(p.nutri_responsavel || '') + '</div>' +
-    '<table><tbody>' +
-    '<tr><th>Hóspede</th><td>' + escapeHtml(p.hospede) + '</td><th>Apto</th><td>' + escapeHtml(p.apartamento) + '</td></tr>' +
-    '<tr><th>Estadia</th><td>' + escapeHtml(formatDataBR(o.entrada)) + ' a ' + escapeHtml(formatDataBR(o.saida)) + '</td><th>Reserva</th><td>' + escapeHtml(p.reserva || '') + '</td></tr>' +
-    '<tr><th>Restrição</th><td colspan="3"><b>' + escapeHtml(p.tipo_restricao) + '</b></td></tr>' +
-    '<tr><th>Observações</th><td colspan="3">' + escapeHtml(p.observacoes || '') + '</td></tr></tbody></table>' +
-    '<h2>Refeições solicitadas</h2><table><thead><tr><th>Dia</th><th>Serviço</th><th>Horário</th><th>Prato</th></tr></thead><tbody>';
-  p.itens.slice().sort((a, b) => (a.data + a.horario).localeCompare(b.data + b.horario)).forEach(i => {
-    html += '<tr><td>' + escapeHtml(formatDataBR(i.data)) + '</td><td>' + escapeHtml(i.refeicao) + '</td><td>' + escapeHtml(i.horario || '') + '</td><td class="pr-prato">' + escapeHtml(i.prato) + '</td></tr>';
+  const ag = new Date(o.emitida || Date.now());
+  const emit = ag.toLocaleDateString('pt-BR') + ' ' + ag.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const dn = iso => new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+  const noites = Math.max(0, Math.round((new Date(o.saida + 'T00:00:00') - new Date(o.entrada + 'T00:00:00')) / 86400000));
+  const itens = p.itens.slice().sort((a, b) => (a.data + a.horario).localeCompare(b.data + b.horario));
+  const dias = [...new Set(itens.map(i => i.data))];
+  let html = '<div class="os"><div class="os-top"><div><div class="os-k">ORDEM DE SERVIÇO</div><div class="os-t">Restrição Alimentar</div></div>' +
+    '<div class="os-n"><b>' + escapeHtml(o.id) + '</b><br>emitida ' + emit + '<br>Nutri: ' + escapeHtml(p.nutri_responsavel || '') + '</div></div>' +
+    '<div class="os-id"><div class="os-apto"><small>APTO</small><b>' + escapeHtml(p.apartamento || '—') + '</b></div>' +
+    '<div class="os-hosp"><small>HÓSPEDE</small><b>' + escapeHtml(p.hospede) + '</b><span>' + (p.reserva ? 'Reserva ' + escapeHtml(p.reserva) : '') + (p.contato ? ' · ' + escapeHtml(p.contato) : '') + '</span></div></div>' +
+    '<div class="os-faixa"></div><div class="os-alerta"><span>⚠ RESTRIÇÃO<br>ALIMENTAR</span><b>' + escapeHtml(p.tipo_restricao) + '</b></div><div class="os-faixa"></div>' +
+    '<div class="os-estadia"><span class="os-chip f">ENTRADA ' + escapeHtml(formatDataBR(o.entrada)) + '</span><span class="os-chip f">SAÍDA ' + escapeHtml(formatDataBR(o.saida)) + '</span>' +
+    '<span class="os-chip">' + noites + ' noite(s)</span><span class="os-chip">' + itens.length + ' refeição(ões)</span></div>';
+  dias.forEach(d => {
+    html += '<div class="os-dia"><div class="os-dh"><b>' + escapeHtml(dn(d)) + '</b><span>' + escapeHtml(formatDataBR(d)) + '</span><i></i></div>';
+    itens.filter(i => i.data === d).forEach(i => {
+      html += '<div class="os-card"><div class="os-h">' + escapeHtml(i.horario || '--:--') + '</div><div class="os-b"><div class="os-s">' + (ICONE_SERV[i.refeicao] || '') + ' ' + escapeHtml(i.refeicao) +
+        '</div><div class="os-p">' + escapeHtml(i.prato) + '</div></div><div class="os-ck"><span><u></u>Preparado</span><span><u></u>Entregue</span></div></div>';
+    });
+    html += '</div>';
   });
-  area.innerHTML = html + '</tbody></table>';
+  html += '<div class="os-obs"><small>OBSERVAÇÕES</small>' + escapeHtml(p.observacoes || '').replace(/\n/g, '<br>') + '</div>' +
+    '<div class="os-ass"><div>Nutricionista</div><div>Cozinha (preparo)</div><div>Conferência da entrega</div></div></div>';
+  area.innerHTML = html;
   window.print();
 }
+renderOrdensRecentes();
+document.getElementById('tipoRestricaoLista').addEventListener('change', () => { estMenuBotoes(); estLista(); });
 
 document.getElementById('formSolicitar').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -1478,7 +1587,9 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
 
   const r = await apiPost('createPedido', payload);
   if (r.ok) {
-    ultimaOrdem = { p: payload, entrada: document.getElementById('eEntrada').value, saida: document.getElementById('eSaida').value };
+    const _ag = new Date(), _z = n => String(n).padStart(2, '0');
+    ultimaOrdem = { id: 'OS-' + _ag.getFullYear() + _z(_ag.getMonth() + 1) + _z(_ag.getDate()) + '-' + _z(_ag.getHours()) + _z(_ag.getMinutes()) + _z(_ag.getSeconds()), emitida: _ag.toISOString(), p: payload, entrada: document.getElementById('eEntrada').value, saida: document.getElementById('eSaida').value };
+    ordensSalvar(ultimaOrdem);
     msg.style.color = 'var(--verde-escuro)';
     msg.innerHTML = 'Pedido lançado com sucesso! ' + r.linhas_criadas + ' refeição(ões) enviada(s) à cozinha. <button type="button" class="primary" onclick="imprimirOrdem()">🖨️ Imprimir ordem de serviço</button>';
     document.getElementById('formSolicitar').reset();
