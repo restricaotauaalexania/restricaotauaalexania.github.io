@@ -1715,7 +1715,7 @@ async function carregarEntregas() {
       <div class="er-acoes">
         <button class="secondary small" onclick="toggleEntregue('${p.id}', ${!entregue})">${entregue ? 'Desmarcar entrega' : 'Marcar entregue'}</button>
         <button class="secondary small" onclick="abrirModalEditarPorId('${p.id}')">Corrigir</button>
-        ${currentUser && currentUser.usuario === 'gabriel.cruz' ? `<button class="danger small" onclick="excluirPedido('${p.id}')">Excluir</button>` : ''}
+        ${currentUser ? `<button class="danger small" onclick="excluirPedido('${p.id}')">Excluir</button>` : ''}
       </div>
     </div>`;
   });
@@ -1735,7 +1735,7 @@ async function toggleEntregue(id, novoStatus) {
 }
 
 async function excluirPedido(id) {
-  if (!currentUser || currentUser.usuario !== 'gabriel.cruz') { alert('Apenas o administrador pode excluir pedidos.'); return; }
+  if (!currentUser) { alert('Faça login para excluir pedidos.'); return; }
   if (!confirm('Excluir este pedido? Esta ação não pode ser desfeita.')) return;
   await apiPost('deletePedido', { id });
   carregarEntregas();
@@ -1829,7 +1829,7 @@ function renderDemandas() {
           (ok ? '<span class="muted">✓ entregue às ' + escapeHtml(p.horario_entrega || '') + ' — ' + escapeHtml(p.prato || '') + '</span>' :
           '<input type="time" id="dh_' + id + '" value="' + escapeHtml(p.horario_entrega || '') + '" required><input type="text" id="dp_' + id + '" value="' + escapeHtml(p.prato || '') + '">' +
           '<button class="primary small" onclick="salvarDemandaLinha(\'' + id + '\')">Salvar</button>' +
-          (currentUser && currentUser.usuario === 'gabriel.cruz' ? '<button class="danger small" onclick="excluirDemandaLinha(\'' + id + '\')">Excluir</button>' : '')) + '</div>';
+          (currentUser ? '<button class="danger small" onclick="excluirDemandaLinha(\'' + id + '\')">Excluir</button>' : '')) + '</div>';
       }).join('') + '</div>';
     }
     return h + '</div>';
