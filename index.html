@@ -405,6 +405,10 @@
             <input type="text" id="fContato" placeholder="Ex: (61) 99999-9999">
           </div>
         </div>
+        <div class="linha-dois">
+          <div class="campo"><label>Entrada do hóspede *</label><input type="date" id="eEntrada" required onchange="estMudouDatas()"></div>
+          <div class="campo"><label>Saída do hóspede *</label><input type="date" id="eSaida" required onchange="estMudouDatas()"></div>
+        </div>
         <div class="campo">
           <label>Origem do hóspede *</label>
           <select id="fOrigem" required></select>
@@ -429,10 +433,6 @@
 
       <div class="form-secao">
         <h4><span class="num">3</span>Estadia e pratos</h4>
-        <div class="linha-dois">
-          <div class="campo"><label>Entrada do hóspede *</label><input type="date" id="eEntrada" onchange="estMudouDatas()"></div>
-          <div class="campo"><label>Saída do hóspede *</label><input type="date" id="eSaida" onchange="estMudouDatas()"></div>
-        </div>
         <div class="est-prog"><span id="estProg">—</span></div>
         <div class="est-barra"><i id="estBarra"></i></div>
         <div class="est-scroll"><div class="est-grid" id="estadiaGrid"></div></div>
@@ -1206,7 +1206,7 @@ function estMudouDatas() {
 function desenharEstadia() {
   const dias = estDias(), grid = document.getElementById('estadiaGrid');
   if (!dias.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Informe a entrada e a saída do hóspede para ver os dias.</div>';
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Informe a entrada e a saída do hóspede em "Dados do hóspede" para ver os dias.</div>';
     document.getElementById('estProg').textContent = '—';
     document.getElementById('estBarra').style.width = '0%';
     return;
