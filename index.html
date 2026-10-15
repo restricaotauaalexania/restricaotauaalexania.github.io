@@ -511,6 +511,10 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
       <button data-p="1" onclick="setPainelDias(1)">📅 Hoje</button>
       <button data-p="2" onclick="setPainelDias(2)">Hoje + amanhã</button>
       <button data-p="3" onclick="setPainelDias(3)">Hoje + 2 dias</button>
+      <button data-p="7" onclick="setPainelDias(7)">Próximos 7 dias</button>
+      <span class="vt-label" style="margin-left:10px;">A partir de:</span>
+      <input type="date" id="painelInicio" onchange="setPainelInicio(this.value)" style="width:auto;">
+      <button type="button" onclick="setPainelInicio('')">Hoje</button>
     </div>
     <div class="visual-toggle">
       <span class="vt-label">Ver como:</span>
@@ -847,8 +851,15 @@ function setPainelDias(n) {
 function atualizarBtnsPeriodo() {
   document.querySelectorAll('#periodoToggle button[data-p]').forEach(b => b.classList.toggle('active', +b.dataset.p === painelDias));
 }
+let painelInicio = '';
+function setPainelInicio(v) {
+  painelInicio = v || '';
+  document.getElementById('painelInicio').value = painelInicio;
+  mosaicoAberto = null;
+  carregarPainel();
+}
 function diasPeriodoISO() {
-  const b = new Date(), out = [];
+  const b = painelInicio ? new Date(painelInicio + 'T00:00:00') : new Date(), out = [];
   for (let i = 0; i < painelDias; i++) out.push(dataISO(new Date(b.getFullYear(), b.getMonth(), b.getDate() + i)));
   return out;
 }
@@ -1002,7 +1013,7 @@ function setPainelSubview(v) {
 
 async function carregarPainel() {
   const dsP = diasPeriodoISO();
-  document.getElementById('dataHojeLabel').textContent = painelDias === 1 ? new Date().toLocaleDateString('pt-BR') : formatDataBR(dsP[0]).slice(0, 5) + ' a ' + formatDataBR(dsP[dsP.length - 1]).slice(0, 5);
+  document.getElementById('dataHojeLabel').textContent = painelDias === 1 ? formatDataBR(dsP[0]) : formatDataBR(dsP[0]).slice(0, 5) + ' a ' + formatDataBR(dsP[dsP.length - 1]).slice(0, 5);
   atualizarBtnsPeriodo();
   const grid = document.getElementById('painelGrid');
   grid.innerHTML = '<div class="empty">Carregando...</div>';
