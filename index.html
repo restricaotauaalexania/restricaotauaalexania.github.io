@@ -405,6 +405,22 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
 .dem-row .dr-d{min-width:120px;font-size:12px;color:#495057;}
 .dem-row input[type=text]{flex:1;min-width:200px;}
 .dem-row.ok{opacity:.6;}
+.linha-wrap{display:block !important;}
+.lt-dia{font-weight:900;color:var(--verde-escuro);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px;border-bottom:2px dotted #FF9500;padding-bottom:3px;}
+.lt-row{display:flex;gap:14px;align-items:center;background:#fff;border-radius:18px;border-left:8px solid #00A565;padding:10px 14px;margin-bottom:10px;box-shadow:0 4px 14px rgba(0,0,0,.06);flex-wrap:wrap;}
+.lt-row.lt-soon{border-left-color:#FF9500;}
+.lt-row.lt-late{border-left-color:#c0141c;background:#fff5f4;}
+.lt-row.lt-prox{box-shadow:0 0 0 3px #FF9500,0 6px 18px rgba(255,149,0,.3);}
+.lt-hora{min-width:110px;font-size:28px;font-weight:900;line-height:1;color:#30302e;}
+.lt-hora small{display:block;font-size:12px;font-weight:800;margin-top:4px;color:#00593a;}
+.lt-soon .lt-hora small{color:#EC6724;}
+.lt-late .lt-hora small{color:#c0141c;}
+.lt-corpo{flex:1;min-width:220px;}
+.lt-top{font-size:15px;}
+.lt-serv{background:#FFB000;color:#412402;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:800;margin-left:6px;}
+.lt-rest{color:#c0141c;font-weight:800;font-size:13px;margin-top:2px;}
+.lt-prato{font-size:17px;font-weight:900;margin-top:2px;}
+.lt-obs{font-size:12px;color:#495057;margin-top:2px;}
 /* Ordem de serviço (impressão) */
 #printArea, #printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 #printArea .os{font-family:Nunito,Arial,Helvetica,sans-serif;color:#111;}
@@ -483,6 +499,7 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
         <span class="muted" id="ultimaAtualizacaoPainel">—</span>
         <button class="secondary" onclick="carregarPainel()">Atualizar agora</button>
         <button class="secondary" onclick="imprimirDemanda()">🖨 Imprimir demanda</button>
+        <button class="secondary" onclick="imprimirDemanda('pdf')">📲 Enviar PDF (WhatsApp)</button>
       </div>
     </div>
     <div class="painel-subnav" id="painelSubnav">
@@ -497,6 +514,7 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
     </div>
     <div class="visual-toggle">
       <span class="vt-label">Ver como:</span>
+      <button data-v="linha" onclick="setPainelVisual('linha')">⏱ Linha do tempo</button>
       <button data-v="colunas" onclick="setPainelVisual('colunas')">🗂 Colunas por refeição</button>
       <button data-v="mosaico" onclick="setPainelVisual('mosaico')">🔲 Mosaico por apartamento</button>
       <button data-v="tabela" onclick="setPainelVisual('tabela')">📋 Tabela</button>
@@ -817,7 +835,7 @@ function hojeISO() {
 let pedidosPainelAtual = [];
 let painelSubview = 'pendentes';
 let painelFoco = true; // true = mostra só a refeição do horário atual (mais espaço); false = mostra todos os serviços
-let painelVisual = localStorage.getItem('painelVisualPref') || 'colunas'; // 'colunas' | 'mosaico' | 'tabela'
+let painelVisual = localStorage.getItem('painelVisualPref') || 'linha'; // 'colunas' | 'mosaico' | 'tabela'
 let mosaicoAberto = null; // id do pedido expandido no modo mosaico
 let painelDias = parseInt(localStorage.getItem('painelDiasPref') || '1', 10) || 1; // 1 = hoje, 2 = hoje + amanhã, 3 = hoje + 2 dias
 function setPainelDias(n) {
@@ -1000,7 +1018,7 @@ async function carregarPainel() {
 }
 
 // Imprime a demanda do dia (todas as refeições, com os pratos solicitados)
-function imprimirDemanda() {
+function imprimirDemanda(modo) {
   const pedidos = pedidosPainelAtual || [];
   if (!pedidos.length) { alert('Não há pedidos para imprimir. Clique em "Atualizar agora" e tente de novo.'); return; }
   let area = document.getElementById('printArea');
@@ -1031,6 +1049,7 @@ function imprimirDemanda() {
   });
   });
   area.innerHTML = html;
+  if (modo === 'pdf') { gerarPdfCompartilhar(area, 'Demanda-cozinha-' + hojeISO()); return; }
   window.print();
 }
 
@@ -1219,10 +1238,41 @@ function templateCardPronto(p, vinculos) {
     </div>`;
 }
 
+function minutosAte(p) {
+  if (!p.horario_entrega) return null;
+  const h = String(p.horario_entrega).split(':'), alvo = new Date(String(p.data) + 'T00:00:00');
+  alvo.setHours(+h[0], +h[1], 0, 0);
+  return Math.round((alvo - new Date()) / 60000);
+}
+function textoContagem(m) {
+  if (m === null) return { t: 'sem horário', c: 'lt-ok' };
+  const a = Math.abs(m), d = a >= 1440 ? Math.floor(a / 1440) + ' d' : '', hh = a % 1440 >= 60 ? Math.floor((a % 1440) / 60) + ' h ' : '', mm = (a % 60) + ' min';
+  const txt = (d ? d + ' ' : '') + hh + (a >= 1440 ? '' : mm);
+  if (m < 0) return { t: 'atrasado ' + txt, c: 'lt-late' };
+  if (m <= 30) return { t: 'em ' + txt, c: 'lt-soon' };
+  return { t: 'em ' + txt, c: 'lt-ok' };
+}
+function renderLinhaTempo(lista) {
+  if (!lista.length) return '<div class="empty">Nenhuma restrição pendente</div>';
+  let diaAtual = null, proximoMarcado = false, h = '';
+  lista.forEach(p => {
+    if (painelDias > 1 && p.data !== diaAtual) { diaAtual = p.data; h += '<div class="lt-dia">' + escapeHtml(diaCurto(p)) + '</div>'; }
+    const m = minutosAte(p), ct = textoContagem(m);
+    let cls = 'lt-row ' + ct.c;
+    if (!proximoMarcado && m !== null && m >= 0) { cls += ' lt-prox'; proximoMarcado = true; }
+    h += '<div class="' + cls + '"><div class="lt-hora">' + escapeHtml(p.horario_entrega || '--:--') + '<small>' + escapeHtml(ct.t) + '</small></div>' +
+      '<div class="lt-corpo"><div class="lt-top"><b>' + (p.apartamento ? 'Apto ' + escapeHtml(p.apartamento) : '') + '</b> ' + escapeHtml(p.hospede) + ' <span class="lt-serv">' + escapeHtml(p.refeicao) + '</span></div>' +
+      '<div class="lt-rest">⚠️ ' + escapeHtml(p.tipo_restricao || '') + '</div><div class="lt-prato">' + escapeHtml(p.prato || '') + '</div>' +
+      (p.observacoes ? '<div class="lt-obs">📝 ' + escapeHtml(p.observacoes).replace(/\n/g, ' · ') + '</div>' : '') + '</div>' +
+      '<button class="primary" onclick="marcarEntregue(\'' + p.id + '\')">✓ Entregue</button></div>';
+  });
+  return h;
+}
 function renderPainelPendentes(grid) {
   const vinculos = calcularVinculos(pedidosPainelAtual);
   const pendentes = pedidosPainelAtual.filter(p => p.entregue !== 'Sim').sort(ordemDiaHora);
 
+  if (painelVisual === 'linha') { grid.className = 'linha-wrap'; grid.innerHTML = renderLinhaTempo(pendentes); return; }
   if (painelVisual === 'mosaico') { grid.innerHTML = renderMosaico(pendentes, 'pendente', vinculos); return; }
   if (painelVisual === 'tabela') { grid.innerHTML = renderTabelaPainel(pendentes, 'pendente'); return; }
 
@@ -1564,9 +1614,10 @@ function renderOrdensRecentes() {
     '<div class="ord-item"><div class="oi-t"><b>' + escapeHtml(o.p.hospede) + '</b>' + (o.p.apartamento ? ' · Apto ' + escapeHtml(o.p.apartamento) : '') +
     '<small>' + escapeHtml(o.id) + ' · ' + escapeHtml(formatDataBR(o.entrada)) + ' a ' + escapeHtml(formatDataBR(o.saida)) + ' · ' + escapeHtml(o.p.tipo_restricao) + '</small></div>' +
     '<button type="button" class="primary small" onclick="reimprimirOrdem(\'' + o.id + '\')">🖨️ Imprimir</button>' +
+    '<button type="button" class="secondary small" onclick="reimprimirOrdem(\'' + o.id + '\', \'pdf\')">📲 PDF</button>' +
     '<button type="button" class="secondary small" onclick="corrigirOrdem(\'' + o.id + '\')">✏️ Corrigir refeições</button></div>').join('');
 }
-function reimprimirOrdem(id) { const o = ordensLer().find(x => x.id === id); if (!o) return; ultimaOrdem = o; imprimirOrdem(); }
+function reimprimirOrdem(id, modo) { const o = ordensLer().find(x => x.id === id); if (!o) return; ultimaOrdem = o; imprimirOrdem(modo); }
 function corrigirOrdem(id) {
   const o = ordensLer().find(x => x.id === id); if (!o) return;
   const d = o.p.itens.map(i => i.data).sort()[0];
@@ -1574,7 +1625,34 @@ function corrigirOrdem(id) {
   showView('entregas');
   if (currentUser) carregarEntregas();
 }
-function imprimirOrdem() {
+function carregarScript(src) {
+  return new Promise((ok, erro) => { const t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = erro; document.head.appendChild(t); });
+}
+async function gerarPdfCompartilhar(area, nome) {
+  const aviso = document.createElement('div');
+  aviso.style.cssText = 'position:fixed;left:50%;top:20px;transform:translateX(-50%);background:#007A47;color:#fff;padding:10px 20px;border-radius:999px;font-weight:800;z-index:9999;';
+  aviso.textContent = 'Gerando PDF...';
+  document.body.appendChild(aviso);
+  const antes = area.style.cssText;
+  try {
+    if (!window.html2pdf) await carregarScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+    area.style.cssText = 'display:block;position:absolute;left:-9999px;top:0;width:190mm;background:#fff;padding:0;';
+    const blob = await window.html2pdf().set({ margin: 8, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'avoid-all'] } }).from(area).outputPdf('blob');
+    area.style.cssText = antes;
+    const arq = new File([blob], nome.replace(/[^\w.-]+/g, '_') + '.pdf', { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [arq] })) {
+      try { await navigator.share({ files: [arq], title: nome }); } catch (e) {}
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = arq.name; document.body.appendChild(a); a.click(); a.remove();
+      alert('PDF baixado. Abra o WhatsApp e anexe o arquivo "' + arq.name + '".');
+    }
+  } catch (e) {
+    area.style.cssText = antes;
+    alert('Não foi possível gerar o PDF aqui. Use "Imprimir" e escolha "Salvar como PDF".');
+  }
+  aviso.remove();
+}
+function imprimirOrdem(modo) {
   if (!ultimaOrdem) return;
   const o = ultimaOrdem, p = o.p;
   let area = document.getElementById('printArea');
@@ -1603,6 +1681,7 @@ function imprimirOrdem() {
   html += '<div class="os-obs"><small>OBSERVAÇÕES</small>' + escapeHtml(p.observacoes || '').replace(/\n/g, '<br>') + '</div>' +
     '<div class="os-ass"><div>Nutricionista</div><div>Cozinha (preparo)</div><div>Conferência da entrega</div></div></div>';
   area.innerHTML = html;
+  if (modo === 'pdf') { gerarPdfCompartilhar(area, 'Ordem-servico-apto-' + (p.apartamento || 'sem-apto') + '-' + String(p.hospede).split(' ')[0]); return; }
   window.print();
 }
 renderOrdensRecentes();
@@ -1652,7 +1731,7 @@ document.getElementById('formSolicitar').addEventListener('submit', async (e) =>
     ultimaOrdem = { id: 'OS-' + _ag.getFullYear() + _z(_ag.getMonth() + 1) + _z(_ag.getDate()) + '-' + _z(_ag.getHours()) + _z(_ag.getMinutes()) + _z(_ag.getSeconds()), emitida: _ag.toISOString(), p: payload, entrada: document.getElementById('eEntrada').value, saida: document.getElementById('eSaida').value };
     ordensSalvar(ultimaOrdem);
     msg.style.color = 'var(--verde-escuro)';
-    msg.innerHTML = 'Pedido lançado com sucesso! ' + r.linhas_criadas + ' refeição(ões) enviada(s) à cozinha. <button type="button" class="primary" onclick="imprimirOrdem()">🖨️ Imprimir ordem de serviço</button>';
+    msg.innerHTML = 'Pedido lançado com sucesso! ' + r.linhas_criadas + ' refeição(ões) enviada(s) à cozinha. <button type="button" class="primary" onclick="imprimirOrdem()">🖨️ Imprimir ordem de serviço</button> <button type="button" class="secondary" onclick="imprimirOrdem(\'pdf\')">📲 Enviar PDF (WhatsApp)</button>';
     document.getElementById('formSolicitar').reset();
     document.getElementById('nutriResponsavel').value = currentUser.nome;
     document.getElementById('campoOutraRestricao').style.display = 'none';
@@ -1821,6 +1900,7 @@ function renderDemandas() {
     let h = '<div class="dem-card"><div class="dem-top"><div class="dem-t"><b>' + escapeHtml(p0.hospede) + '</b>' + (p0.apartamento ? ' · Apto ' + escapeHtml(p0.apartamento) : '') +
       '<small>⚠️ ' + escapeHtml(p0.tipo_restricao || '') + ' · ' + abertas.length + ' refeição(ões) aberta(s) · ' + escapeHtml(formatDataBR(g.rows[0].data)) + ' a ' + escapeHtml(formatDataBR(g.rows[g.rows.length - 1].data)) + '</small></div>' +
       '<button class="primary small" onclick="reimprimirDemanda(decodeURIComponent(\'' + encodeURIComponent(g.k) + '\'))">🖨️ Reimprimir ordem</button>' +
+      '<button class="secondary small" onclick="reimprimirDemanda(decodeURIComponent(\'' + encodeURIComponent(g.k) + '\'), \'pdf\')">📲 PDF</button>' +
       '<button class="secondary small" onclick="toggleDemanda(decodeURIComponent(\'' + encodeURIComponent(g.k) + '\'))">' + (aberto ? 'Fechar' : '✏️ Editar refeições') + '</button></div>';
     if (aberto) {
       h += '<div class="dem-rows">' + g.rows.map(p => {
@@ -1850,7 +1930,7 @@ async function excluirDemandaLinha(id) {
   const r = await apiPost('deletePedido', { id });
   if (r.ok) await carregarDemandas(); else alert(r.error || 'Erro ao excluir');
 }
-function reimprimirDemanda(k) {
+function reimprimirDemanda(k, modo) {
   const g = demandaGrupos().find(x => x.k === k);
   if (!g) return;
   const p0 = g.rows[0], ag = new Date(), z = n => String(n).padStart(2, '0');
@@ -1858,7 +1938,7 @@ function reimprimirDemanda(k) {
     p: { hospede: p0.hospede, apartamento: p0.apartamento, reserva: p0.reserva || '', contato: p0.contato || '', tipo_restricao: p0.tipo_restricao, observacoes: p0.observacoes || '', nutri_responsavel: currentUser ? currentUser.nome : '',
       itens: g.rows.map(p => ({ data: p.data, refeicao: p.refeicao, horario: p.horario_entrega, prato: p.prato })) },
     entrada: g.rows[0].data, saida: g.rows[g.rows.length - 1].data };
-  imprimirOrdem();
+  imprimirOrdem(modo);
 }
 
 // ---------- Dashboard ----------
