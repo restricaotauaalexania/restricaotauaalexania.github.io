@@ -448,8 +448,8 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
 .fc-sec{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;color:#00593a;margin:10px 0 4px;}
 .ck-lista{display:flex;flex-direction:column;gap:6px;}
 .ck-item{display:flex;align-items:center;gap:10px;background:#f7f5ef;border-radius:12px;padding:8px 12px;font-size:16px;font-weight:800;cursor:pointer;}
-.ck-item input{width:24px;height:24px;accent-color:#00A565;flex-shrink:0;}
-.ck-item.feito{background:#e3f4ec;color:#6b7b73;text-decoration:line-through;}
+.ck-item{cursor:default;}
+.ck-item::before{content:'';width:12px;height:12px;border-radius:50%;background:#FF9500;flex-shrink:0;}
 .fc-obs{margin-top:10px;background:#fff4e0;border:2px solid #FF9500;border-radius:12px;padding:8px 12px;}
 .fc-obs b{display:block;color:#8a4b00;font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
 .fc-mais{margin:10px 0 6px;font-size:12px;color:#495057;}
@@ -531,8 +531,7 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
         <button class="secondary" id="btnPainelFoco" onclick="togglePainelFoco()"></button>
         <span class="muted" id="ultimaAtualizacaoPainel">—</span>
         <button class="secondary" onclick="carregarPainel()">Atualizar agora</button>
-        <button class="secondary" onclick="imprimirDemanda()">🖨 Imprimir demanda</button>
-        <button class="secondary" onclick="imprimirDemanda('pdf')">📲 Enviar PDF (WhatsApp)</button>
+        <button class="secondary" onclick="showView('demandas')">🖨 Imprimir ordem de serviço</button>
       </div>
     </div>
     <div class="painel-subnav" id="painelSubnav">
@@ -1206,14 +1205,8 @@ function splitTop(t) {
   out.push(cur);
   return out.map(x => x.trim()).filter(Boolean);
 }
-function ckLer(id, i) { try { return localStorage.getItem('ck_' + id + '_' + i) === '1'; } catch (e) { return false; } }
-function ckSalvar(id, i, v) { try { if (v) localStorage.setItem('ck_' + id + '_' + i, '1'); else localStorage.removeItem('ck_' + id + '_' + i); } catch (e) {} const l = document.getElementById('ckl_' + id + '_' + i); if (l) l.classList.toggle('feito', v); }
 function renderChecklist(p) {
-  const id = String(p.id);
-  return '<div class="fc-sec">Montar o prato</div><div class="ck-lista">' + splitTop(p.prato).map((x, i) => {
-    const f = ckLer(id, i);
-    return '<label class="ck-item' + (f ? ' feito' : '') + '" id="ckl_' + id + '_' + i + '"><input type="checkbox"' + (f ? ' checked' : '') + ' onchange="ckSalvar(\'' + id + '\',' + i + ',this.checked)"><span>' + destacarPalavrasCriticas(escapeHtml(x)) + '</span></label>';
-  }).join('') + '</div>';
+  return '<div class="fc-sec">Montar o prato</div><div class="ck-lista">' + splitTop(p.prato).map(x => '<div class="ck-item"><span>' + destacarPalavrasCriticas(escapeHtml(x)) + '</span></div>').join('') + '</div>';
 }
 function pratoLinhasHtml(prato, fn) {
   const a = splitTop(prato);
