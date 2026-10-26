@@ -440,6 +440,20 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
 #printArea .pl::before{content:'';position:absolute;left:0;top:2.6mm;width:2.4mm;height:2.4mm;border-radius:50%;background:#FF9500;}
 #printArea .obs-linha{padding:1.2mm 0;border-bottom:1px dashed #c0141c;font-size:11pt;}
 #printArea .obs-linha:last-child{border-bottom:0;}
+.ficha .fc-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.fc-hora{background:#FF9500;color:#412402;border-radius:12px;padding:4px 12px;font-size:22px;font-weight:900;}
+.fc-quem{display:flex;flex-direction:column;line-height:1.2;}
+.fc-quem b{font-size:17px;color:#00593a;}
+.fc-quem span{font-size:13px;color:#495057;}
+.fc-sec{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;color:#00593a;margin:10px 0 4px;}
+.ck-lista{display:flex;flex-direction:column;gap:6px;}
+.ck-item{display:flex;align-items:center;gap:10px;background:#f7f5ef;border-radius:12px;padding:8px 12px;font-size:16px;font-weight:800;cursor:pointer;}
+.ck-item input{width:24px;height:24px;accent-color:#00A565;flex-shrink:0;}
+.ck-item.feito{background:#e3f4ec;color:#6b7b73;text-decoration:line-through;}
+.fc-obs{margin-top:10px;background:#fff4e0;border:2px solid #FF9500;border-radius:12px;padding:8px 12px;}
+.fc-obs b{display:block;color:#8a4b00;font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.fc-mais{margin:10px 0 6px;font-size:12px;color:#495057;}
+.fc-mais summary{cursor:pointer;font-weight:700;}
 /* Ordem de serviço (impressão) */
 #printArea, #printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 #printArea .os{font-family:Nunito,Arial,Helvetica,sans-serif;color:#111;}
@@ -1182,8 +1196,27 @@ function restricaoChips(tipo) {
   const a = linhasDe(tipo, ',');
   return a.length ? '<div class="rchips">' + a.map(p => '<span class="rchip">' + escapeHtml(p) + '</span>').join('') + '</div>' : '';
 }
+function splitTop(t) {
+  const out = []; let cur = '', d = 0;
+  for (const ch of String(t || '')) {
+    if (ch === '(') d++; else if (ch === ')') d = Math.max(0, d - 1);
+    if (d === 0 && (ch === '+' || ch === ';' || ch === '\n' || ch === ',')) { out.push(cur); cur = ''; continue; }
+    cur += ch;
+  }
+  out.push(cur);
+  return out.map(x => x.trim()).filter(Boolean);
+}
+function ckLer(id, i) { try { return localStorage.getItem('ck_' + id + '_' + i) === '1'; } catch (e) { return false; } }
+function ckSalvar(id, i, v) { try { if (v) localStorage.setItem('ck_' + id + '_' + i, '1'); else localStorage.removeItem('ck_' + id + '_' + i); } catch (e) {} const l = document.getElementById('ckl_' + id + '_' + i); if (l) l.classList.toggle('feito', v); }
+function renderChecklist(p) {
+  const id = String(p.id);
+  return '<div class="fc-sec">Montar o prato</div><div class="ck-lista">' + splitTop(p.prato).map((x, i) => {
+    const f = ckLer(id, i);
+    return '<label class="ck-item' + (f ? ' feito' : '') + '" id="ckl_' + id + '_' + i + '"><input type="checkbox"' + (f ? ' checked' : '') + ' onchange="ckSalvar(\'' + id + '\',' + i + ',this.checked)"><span>' + destacarPalavrasCriticas(escapeHtml(x)) + '</span></label>';
+  }).join('') + '</div>';
+}
 function pratoLinhasHtml(prato, fn) {
-  const a = linhasDe(prato, /\s\+\s|\n/);
+  const a = splitTop(prato);
   fn = fn || escapeHtml;
   if (a.length < 2) return fn(String(prato || ''));
   return a.map(x => '<div class="pl">' + fn(x) + '</div>').join('');
@@ -1247,19 +1280,18 @@ function renderAtrasoTag(p) {
 }
 
 function templateCardPendente(p, vinculos) {
+  const vinc = renderVinculoRefeicoes(p, vinculos);
   return `
-    <div class="pedido-card${atributosVinculo(p, vinculos)}">
-      <div class="linha1">
-        <div class="nome">${escapeHtml(p.hospede)}</div>
-        ${p.apartamento ? `<div class="apto">Apto ${escapeHtml(p.apartamento)}</div>` : ''}
+    <div class="pedido-card ficha${atributosVinculo(p, vinculos)}">
+      <div class="fc-top">
+        <div class="fc-hora">${escapeHtml(p.horario_entrega || '--:--')}</div>
+        <div class="fc-quem"><b>${p.apartamento ? 'Apto ' + escapeHtml(p.apartamento) : ''}</b><span>${escapeHtml(p.hospede)}</span></div>
+        ${renderDiaTag(p)}${renderAtrasoTag(p)}
       </div>
-      ${renderDiaTag(p)}
-      ${renderRestricaoAlerta(p.tipo_restricao)}
-      ${renderPratoDestaque(p.prato)}
-      ${renderObsBadge(p.observacoes)}
-      <div class="horario">Entrega prevista: ${escapeHtml(p.horario_entrega || '—')} • Nutri: ${escapeHtml(p.nutri_responsavel)}</div>
-      ${renderAtrasoTag(p)}
-      ${renderVinculoRefeicoes(p, vinculos)}
+      ${restricaoChips(p.tipo_restricao)}
+      ${renderChecklist(p)}
+      ${p.observacoes ? '<div class="fc-obs"><b>⚠ Atenção</b>' + obsLinhasHtml(p.observacoes) + '</div>' : ''}
+      <details class="fc-mais"><summary>Mais detalhes</summary><div>Nutri: ${escapeHtml(p.nutri_responsavel || '')}</div>${vinc}</details>
       <button class="status-btn pendente" onclick="marcarEntregue('${p.id}')">✓ Marcar como entregue</button>
     </div>`;
 }
@@ -1306,7 +1338,7 @@ function renderLinhaTempo(lista) {
     if (!proximoMarcado && m !== null && m >= 0) { cls += ' lt-prox'; proximoMarcado = true; }
     h += '<div class="' + cls + '"><div class="lt-hora">' + escapeHtml(p.horario_entrega || '--:--') + '<small>' + escapeHtml(ct.t) + '</small></div>' +
       '<div class="lt-corpo"><div class="lt-top"><b>' + (p.apartamento ? 'Apto ' + escapeHtml(p.apartamento) : '') + '</b> ' + escapeHtml(p.hospede) + ' <span class="lt-serv">' + escapeHtml(p.refeicao) + '</span></div>' +
-      '<div class="lt-rest">⚠️ ' + restricaoChips(p.tipo_restricao) + '</div><div class="lt-prato">' + pratoLinhasHtml(p.prato || '') + '</div>' +
+      '<div class="lt-rest">⚠️ ' + restricaoChips(p.tipo_restricao) + '</div>' + renderChecklist(p) + '' +
       (p.observacoes ? '<div class="lt-obs">📝 ' + obsLinhasHtml(p.observacoes) + '</div>' : '') + '</div>' +
       '<button class="primary" onclick="marcarEntregue(\'' + p.id + '\')">✓ Entregue</button></div>';
   });
