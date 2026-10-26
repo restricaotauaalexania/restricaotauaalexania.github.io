@@ -421,6 +421,25 @@ form.card,.card{border-radius:24px;box-shadow:0 8px 26px rgba(0,0,0,.07);border:
 .lt-rest{color:#c0141c;font-weight:800;font-size:13px;margin-top:2px;}
 .lt-prato{font-size:17px;font-weight:900;margin-top:2px;}
 .lt-obs{font-size:12px;color:#495057;margin-top:2px;}
+.rest-lista{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+.rest-item{background:#fff;color:#c0141c;border-radius:999px;padding:3px 14px;font-weight:900;font-size:14px;letter-spacing:.3px;}
+.rchips{display:flex;flex-direction:column;gap:5px;align-items:flex-start;margin-top:3px;}
+.rchip{background:#c0141c;color:#fff;border-radius:999px;padding:3px 14px;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.3px;}
+.pl{padding:4px 0 4px 18px;position:relative;border-bottom:1px dashed #e8e6df;}
+.pl:last-child{border-bottom:0;}
+.pl::before{content:'';position:absolute;left:2px;top:.85em;width:9px;height:9px;border-radius:50%;background:#FF9500;}
+.obs-lista{flex:1;}
+.obs-linha{padding:4px 0;border-bottom:1px dashed #f0d9a8;font-weight:700;}
+.obs-linha:last-child{border-bottom:0;}
+.lt-obs .obs-linha{border-color:#e8e6df;}
+#printArea .os-rl{display:flex;flex-direction:column;gap:1.5mm;}
+#printArea .os-rl b{display:block;font-size:20pt;line-height:1.1;border-bottom:1.5px solid rgba(255,255,255,.55);padding-bottom:1mm;}
+#printArea .os-rl b:last-child{border-bottom:0;}
+#printArea .pl{padding:1mm 0 1mm 5mm;position:relative;border-bottom:1px dashed #999;}
+#printArea .pl:last-child{border-bottom:0;}
+#printArea .pl::before{content:'';position:absolute;left:0;top:2.6mm;width:2.4mm;height:2.4mm;border-radius:50%;background:#FF9500;}
+#printArea .obs-linha{padding:1.2mm 0;border-bottom:1px dashed #c0141c;font-size:11pt;}
+#printArea .obs-linha:last-child{border-bottom:0;}
 /* Ordem de serviço (impressão) */
 #printArea, #printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 #printArea .os{font-family:Nunito,Arial,Helvetica,sans-serif;color:#111;}
@@ -1158,11 +1177,25 @@ function iconeRestricao(parte) {
   return '⚠️';
 }
 
+function linhasDe(txt, sep) { return String(txt || '').split(sep).map(x => x.trim()).filter(Boolean); }
+function restricaoChips(tipo) {
+  const a = linhasDe(tipo, ',');
+  return a.length ? '<div class="rchips">' + a.map(p => '<span class="rchip">' + escapeHtml(p) + '</span>').join('') + '</div>' : '';
+}
+function pratoLinhasHtml(prato, fn) {
+  const a = linhasDe(prato, /\s\+\s|\n/);
+  fn = fn || escapeHtml;
+  if (a.length < 2) return fn(String(prato || ''));
+  return a.map(x => '<div class="pl">' + fn(x) + '</div>').join('');
+}
+function obsLinhasHtml(obs) {
+  return linhasDe(obs, /\n|;/).map(x => '<div class="obs-linha">' + escapeHtml(x) + '</div>').join('');
+}
 function renderRestricaoAlerta(tipo) {
-  const partes = String(tipo || '').split(',').map(s => s.trim()).filter(Boolean);
+  const partes = linhasDe(tipo, ',');
   if (partes.length === 0) return '';
-  const html = partes.map(p => `<i class="ric">${iconeRestricao(p)}</i>${escapeHtml(p)}`).join(' + ');
-  return `<div class="restricao-alerta"><span class="icone">⚠️</span><span>${html}</span></div>`;
+  const html = partes.map(p => `<div class="rest-item"><i class="ric">${iconeRestricao(p)}</i>${escapeHtml(p)}</div>`).join('');
+  return `<div class="restricao-alerta"><span class="icone">⚠️</span><div class="rest-lista">${html}</div></div>`;
 }
 
 function renderVinculoRefeicoes(p, vinculos) {
@@ -1191,7 +1224,7 @@ function renderPratoDestaque(prato) {
   const linhaIcones = icones.length
     ? `<div class="prato-icones">${icones.map(e => `<span class="ic">${e}</span>`).join('')}</div>`
     : '';
-  return `<div class="prato-destaque"><span class="pd-label">Prato</span>${linhaIcones}<span class="pd-valor">${destacarPalavrasCriticas(escapeHtml(prato))}</span></div>`;
+  return `<div class="prato-destaque"><span class="pd-label">Prato</span>${linhaIcones}<span class="pd-valor">${pratoLinhasHtml(prato, x => destacarPalavrasCriticas(escapeHtml(x)))}</span></div>`;
 }
 
 // Mostra as observações no card sempre que houver algo escrito (ex: ponto da
@@ -1199,7 +1232,7 @@ function renderPratoDestaque(prato) {
 function renderObsBadge(observacoes) {
   const texto = String(observacoes || '').trim();
   if (!texto) return '';
-  return `<div class="obs-badge"><span class="oi">📝</span><span>${escapeHtml(texto).replace(/\n/g, '<br>')}</span></div>`;
+  return `<div class="obs-badge"><span class="oi">📝</span><div class="obs-lista">${obsLinhasHtml(texto)}</div></div>`;
 }
 
 // Sinaliza em vermelho quando o horário planejado já passou e o pedido
@@ -1273,8 +1306,8 @@ function renderLinhaTempo(lista) {
     if (!proximoMarcado && m !== null && m >= 0) { cls += ' lt-prox'; proximoMarcado = true; }
     h += '<div class="' + cls + '"><div class="lt-hora">' + escapeHtml(p.horario_entrega || '--:--') + '<small>' + escapeHtml(ct.t) + '</small></div>' +
       '<div class="lt-corpo"><div class="lt-top"><b>' + (p.apartamento ? 'Apto ' + escapeHtml(p.apartamento) : '') + '</b> ' + escapeHtml(p.hospede) + ' <span class="lt-serv">' + escapeHtml(p.refeicao) + '</span></div>' +
-      '<div class="lt-rest">⚠️ ' + escapeHtml(p.tipo_restricao || '') + '</div><div class="lt-prato">' + escapeHtml(p.prato || '') + '</div>' +
-      (p.observacoes ? '<div class="lt-obs">📝 ' + escapeHtml(p.observacoes).replace(/\n/g, ' · ') + '</div>' : '') + '</div>' +
+      '<div class="lt-rest">⚠️ ' + restricaoChips(p.tipo_restricao) + '</div><div class="lt-prato">' + pratoLinhasHtml(p.prato || '') + '</div>' +
+      (p.observacoes ? '<div class="lt-obs">📝 ' + obsLinhasHtml(p.observacoes) + '</div>' : '') + '</div>' +
       '<button class="primary" onclick="marcarEntregue(\'' + p.id + '\')">✓ Entregue</button></div>';
   });
   return h;
@@ -1678,18 +1711,18 @@ function imprimirOrdem(modo) {
     '<div class="os-n"><b>' + escapeHtml(o.id) + '</b><br>emitida ' + emit + '<br>Nutri: ' + escapeHtml(p.nutri_responsavel || '') + '</div></div>' +
     '<div class="os-id"><div class="os-apto"><small>APTO</small><b>' + escapeHtml(p.apartamento || '—') + '</b></div>' +
     '<div class="os-hosp"><small>HÓSPEDE</small><b>' + escapeHtml(p.hospede) + '</b><span>' + (p.reserva ? 'Reserva ' + escapeHtml(p.reserva) : '') + (p.contato ? ' · ' + escapeHtml(p.contato) : '') + '</span></div></div>' +
-    '<div class="os-faixa"></div><div class="os-alerta"><span>⚠ RESTRIÇÃO<br>ALIMENTAR</span><b>' + escapeHtml(p.tipo_restricao) + '</b></div><div class="os-faixa"></div>' +
+    '<div class="os-faixa"></div><div class="os-alerta"><span>⚠ RESTRIÇÃO<br>ALIMENTAR</span><div class="os-rl">' + linhasDe(p.tipo_restricao, ',').map(x => '<b>' + escapeHtml(x) + '</b>').join('') + '</div></div><div class="os-faixa"></div>' +
     '<div class="os-estadia"><span class="os-chip f">ENTRADA ' + escapeHtml(formatDataBR(o.entrada)) + '</span><span class="os-chip f">SAÍDA ' + escapeHtml(formatDataBR(o.saida)) + '</span>' +
     '<span class="os-chip">' + noites + ' noite(s)</span><span class="os-chip">' + itens.length + ' refeição(ões)</span></div>';
   dias.forEach(d => {
     html += '<div class="os-dia"><div class="os-dh"><b>' + escapeHtml(dn(d)) + '</b><span>' + escapeHtml(formatDataBR(d)) + '</span><i></i></div>';
     itens.filter(i => i.data === d).forEach(i => {
       html += '<div class="os-card"><div class="os-h">' + escapeHtml(i.horario || '--:--') + '</div><div class="os-b"><div class="os-s">' + (ICONE_SERV[i.refeicao] || '') + ' ' + escapeHtml(i.refeicao) +
-        '</div><div class="os-p">' + escapeHtml(i.prato) + '</div></div><div class="os-ck"><span><u></u>Preparado</span><span><u></u>Entregue</span></div></div>';
+        '</div><div class="os-p">' + pratoLinhasHtml(i.prato) + '</div></div><div class="os-ck"><span><u></u>Preparado</span><span><u></u>Entregue</span></div></div>';
     });
     html += '</div>';
   });
-  html += '<div class="os-obs"><small>OBSERVAÇÕES</small>' + escapeHtml(p.observacoes || '').replace(/\n/g, '<br>') + '</div>' +
+  html += '<div class="os-obs"><small>OBSERVAÇÕES</small>' + obsLinhasHtml(p.observacoes || '') + '</div>' +
     '<div class="os-ass"><div>Nutricionista</div><div>Cozinha (preparo)</div><div>Conferência da entrega</div></div></div>';
   area.innerHTML = html;
   if (modo === 'pdf') { gerarPdfCompartilhar(area, 'Ordem-servico-apto-' + (p.apartamento || 'sem-apto') + '-' + String(p.hospede).split(' ')[0]); return; }
@@ -1796,7 +1829,7 @@ async function carregarEntregas() {
       <div>
         <div class="er-hospede">${escapeHtml(p.hospede)}${p.apartamento ? ' <span class="muted">· Apto ' + escapeHtml(p.apartamento) + '</span>' : ''}</div>
         <div class="er-meta">${escapeHtml(p.refeicao)} • ${escapeHtml(p.origem || '—')}${p.contato ? ' • ' + escapeHtml(p.contato) : ''}</div>
-        ${p.tipo_restricao ? `<div class="er-restricao">⚠️ ${escapeHtml(p.tipo_restricao)}</div>` : ''}
+        ${p.tipo_restricao ? `<div class="er-restricao">⚠️ ${restricaoChips(p.tipo_restricao)}</div>` : ''}
       </div>
       <div class="er-prato">${escapeHtml(p.prato)}${p.observacoes ? '<br><span class="muted">📝 ' + escapeHtml(p.observacoes).replace(/\n/g, ' · ') + '</span>' : ''}</div>
       <div class="er-status">
